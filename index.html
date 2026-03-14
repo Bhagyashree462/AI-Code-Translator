@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Code Translator</title>
+
+  <!-- Prism CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: white;
+      color: black;
+      transition: 0.3s ease;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .dark-mode {
+      background-color: #121212;
+      color: white;
+    }
+
+    textarea, select, button, pre {
+      transition: 0.3s ease;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: monospace;
+    }
+
+    .dark-mode textarea,
+    .dark-mode select,
+    .dark-mode button,
+    .dark-mode pre {
+      background-color: #1e1e1e;
+      color: white;
+      border: 1px solid #444;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    pre {
+      padding: 15px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🤖 AI Multi-Language Code Translator</h2>
+
+<textarea id="sourceCode" rows="10" placeholder="Enter your code here"></textarea>
+
+<p id="detectedLang" style="font-weight:bold;"></p>
+
+<label>Target Language:</label>
+<select id="targetLang">
+  <option value="python">Python</option>
+  <option value="java">Java</option>
+  <option value="javascript">JavaScript</option>
+  <option value="c">C</option>
+  <option value="c++">C++</option>
+</select>
+
+<br><br>
+
+<button onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+<button onclick="translateCode()">Translate</button>
+
+<h3>Translated Code:</h3>
+
+<pre>
+<code id="result" class="language-python"></code>
+</pre>
+
+<button id="copyBtn" onclick="copyCode()">Copy</button>
+
+<script>
+
+// Language Detection
+function detectLanguage(code) {
+  code = code.trim();
+
+  if (code.includes("System.out.println") || code.includes("public class"))
+    return "java";
+
+  if (code.includes("console.log") || code.includes("function "))
+    return "javascript";
+
+  if (code.includes("#include <iostream>"))
+    return "c++";
+
+  if (code.includes("#include"))
+    return "c";
+
+  if (code.includes("print(") || code.includes("def "))
+    return "python";
+
+  return "unknown";
+}
+
+async function translateCode() {
+
+  const sourceCode = document.getElementById("sourceCode").value;
+  const targetLang = document.getElementById("targetLang").value;
+
+  if (!sourceCode.trim()) {
+    alert("Please enter some code first!");
+    return;
+  }
+
+  const detectedLang = detectLanguage(sourceCode);
+
+  if (detectedLang === "unknown") {
+    alert("Unable to detect language.");
+    return;
+  }
+
+  if (detectedLang === targetLang) {
+    alert("Source and Target languages cannot be the same!");
+    return;
+  }
+
+  document.getElementById("detectedLang").innerText =
+    "Detected Language: " + detectedLang.toUpperCase();
+
+  try {
+
+    const response = await fetch("http://localhost:5000/translate", {  // 🔥 FIXED LINE
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        sourceCode,
+        sourceLang: detectedLang,
+        targetLang
+      })
+    });
+
+    const data = await response.json();
+
+    const codeBlock = document.getElementById("result");
+
+    codeBlock.textContent = data.translatedCode;
+
+    codeBlock.className = "language-" + targetLang;
+
+    Prism.highlightElement(codeBlock);
+
+  } catch (err) {
+    alert("Server error. Make sure backend is running.");
+    console.error(err);
+  }
+}
+
+// Copy Code
+function copyCode() {
+
+  const text = document.getElementById("result").innerText;
+  const btn = document.getElementById("copyBtn");
+
+  if (!text.trim()) {
+    alert("Nothing to copy!");
+    return;
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+
+    btn.innerText = "Copied!";
+
+    setTimeout(() => {
+      btn.innerText = "Copy";
+    }, 2000);
+
+  });
+
+}
+
+// Dark Mode
+function toggleTheme() {
+
+  const body = document.body;
+  const btn = document.getElementById("themeBtn");
+
+  body.classList.toggle("dark-mode");
+
+  if (body.classList.contains("dark-mode")) {
+    btn.innerText = "☀ Light Mode";
+    localStorage.setItem("theme", "dark");
+  } else {
+    btn.innerText = "🌙 Dark Mode";
+    localStorage.setItem("theme", "light");
+  }
+
+}
+
+// Load Saved Theme
+window.onload = function () {
+
+  const savedTheme = localStorage.getItem("theme");
+  const btn = document.getElementById("themeBtn");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    btn.innerText = "☀ Light Mode";
+  }
+
+};
+
+</script>
+
+<!-- Prism JS -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+
+</body>
+</html>
