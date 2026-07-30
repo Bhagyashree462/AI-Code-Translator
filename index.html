@@ -1,224 +1,682 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>AI Code Translator</title>
 
-  <!-- Prism CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css" rel="stylesheet" />
+<meta charset="UTF-8">
 
-  <style>
-    body {
-      background-color: white;
-      color: black;
-      transition: 0.3s ease;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .dark-mode {
-      background-color: #121212;
-      color: white;
-    }
+<title>CodeMorph AI - Multi Language Code Translator</title>
 
-    textarea, select, button, pre {
-      transition: 0.3s ease;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 5px;
-    }
 
-    textarea {
-      width: 100%;
-      font-family: monospace;
-    }
+<link rel="stylesheet" href="style.css">
 
-    .dark-mode textarea,
-    .dark-mode select,
-    .dark-mode button,
-    .dark-mode pre {
-      background-color: #1e1e1e;
-      color: white;
-      border: 1px solid #444;
-    }
 
-    button {
-      cursor: pointer;
-    }
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css">
 
-    pre {
-      padding: 15px;
-      overflow-x: auto;
-    }
-  </style>
+
 </head>
+
 
 <body>
 
-<h2>🤖 AI Multi-Language Code Translator</h2>
 
-<textarea id="sourceCode" rows="10" placeholder="Enter your code here"></textarea>
+<div class="container">
 
-<p id="detectedLang" style="font-weight:bold;"></p>
 
-<label>Target Language:</label>
+
+<!-- ===========================
+     AI HEADER
+=========================== -->
+
+
+<header class="ai-header">
+
+
+<div class="logo">
+
+🤖 CodeMorph AI
+
+</div>
+
+
+<div class="ai-status">
+
+<span></span>
+
+AI Engine Online
+
+</div>
+
+
+<p>
+
+Transform code between programming languages using Artificial Intelligence
+
+</p>
+
+
+</header>
+
+
+
+
+
+<!-- ===========================
+     AI FEATURES
+=========================== -->
+
+
+<div class="feature-grid">
+
+
+<div class="feature-card">
+
+⚡
+
+<h3>Smart Translation</h3>
+
+<p>
+Convert code instantly between multiple languages
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+🔍
+
+<h3>Error Detection</h3>
+
+<p>
+Detect and fix programming errors automatically
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+💡
+
+<h3>AI Explanation</h3>
+
+<p>
+Understand every line of your code
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ===========================
+     CODE TRANSLATOR PANEL
+=========================== -->
+
+
+<section class="translator-panel">
+
+
+<h2>
+
+🚀 Code Translation Workspace
+
+</h2>
+
+
+
+
+<div class="input-group">
+
+
+
+<!-- SOURCE -->
+
+
+<div class="editor glass-card">
+
+
+<div class="editor-header">
+
+<span class="dot red"></span>
+<span class="dot yellow"></span>
+<span class="dot green"></span>
+
+
+Source Code Editor
+
+</div>
+
+
+
+<label>
+
+💻 Source Code
+
+</label>
+
+
+<textarea
+
+id="sourceCode"
+
+oninput="detectLanguage()"
+
+placeholder="Write or paste your code here...">
+
+</textarea>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- TARGET -->
+
+
+<div class="target-box glass-card">
+
+
+<label>
+
+🎯 Target Language
+
+</label>
+
+
+
 <select id="targetLang">
-  <option value="python">Python</option>
-  <option value="java">Java</option>
-  <option value="javascript">JavaScript</option>
-  <option value="c">C</option>
-  <option value="c++">C++</option>
+
+
+<option value="python">
+
+Python
+
+</option>
+
+
+<option value="java">
+
+Java
+
+</option>
+
+
+<option value="javascript">
+
+JavaScript
+
+</option>
+
+
+<option value="c">
+
+C
+
+</option>
+
+
+<option value="cpp">
+
+C++
+
+</option>
+
+
+<option value="csharp">
+
+C#
+
+</option>
+
+
+<option value="css">
+
+CSS
+
+</option>
+
+
+
 </select>
 
-<br><br>
 
-<button onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
-<button onclick="translateCode()">Translate</button>
 
-<h3>Translated Code:</h3>
+
+<div class="language-status">
+
+
+<h3>
+
+🌐 Detection
+
+</h3>
+
+
+<span id="detectedLang">
+
+None
+
+</span>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- ===========================
+     ACTION BUTTONS
+=========================== -->
+
+
+<div class="buttons">
+
+
+<button 
+class="btn-translate"
+onclick="translateCode()">
+
+🔄 Translate
+
+</button>
+
+
+
+<button
+class="btn-analyze"
+onclick="analyzeCode()">
+
+🔍 Analyze
+
+</button>
+
+
+
+<button
+class="btn-copy"
+onclick="copyCode()">
+
+📋 Copy
+
+</button>
+
+
+
+<button
+class="btn-clear"
+onclick="clearAll()">
+
+🗑 Clear
+
+</button>
+
+
+
+<button
+class="btn-explain"
+onclick="explainCode()">
+
+💡 Explain
+
+</button>
+
+
+</div>
+
+
+
+
+
+
+<!-- ===========================
+     ERROR ANALYSIS
+=========================== -->
+
+
+<section class="output-card">
+
+
+<h2>
+
+🚨 Error Intelligence
+
+</h2>
+
 
 <pre>
-<code id="result" class="language-python"></code>
+
+<code id="errorOutput">
+
+No errors detected...
+
+</code>
+
 </pre>
 
-<button id="copyBtn" onclick="copyCode()">Copy</button>
 
-<script>
+</section>
 
-// Language Detection
-function detectLanguage(code) {
-  code = code.trim();
 
-  if (code.includes("System.out.println") || code.includes("public class"))
-    return "java";
 
-  if (code.includes("console.log") || code.includes("function "))
-    return "javascript";
 
-  if (code.includes("#include <iostream>"))
-    return "c++";
 
-  if (code.includes("#include"))
-    return "c";
 
-  if (code.includes("print(") || code.includes("def "))
-    return "python";
+<!-- ===========================
+     FIXED CODE
+=========================== -->
 
-  return "unknown";
-}
 
-async function translateCode() {
+<section class="output-card">
 
-  const sourceCode = document.getElementById("sourceCode").value;
-  const targetLang = document.getElementById("targetLang").value;
 
-  if (!sourceCode.trim()) {
-    alert("Please enter some code first!");
-    return;
-  }
+<h2>
 
-  const detectedLang = detectLanguage(sourceCode);
+🛠 AI Generated Fix
 
-  if (detectedLang === "unknown") {
-    alert("Unable to detect language.");
-    return;
-  }
+</h2>
 
-  if (detectedLang === targetLang) {
-    alert("Source and Target languages cannot be the same!");
-    return;
-  }
 
-  document.getElementById("detectedLang").innerText =
-    "Detected Language: " + detectedLang.toUpperCase();
+<pre>
 
-  try {
+<code id="fixedCode">
 
-    const response = await fetch("http://localhost:5000/translate", {  // 🔥 FIXED LINE
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        sourceCode,
-        sourceLang: detectedLang,
-        targetLang
-      })
-    });
+Corrected code will appear here...
 
-    const data = await response.json();
+</code>
 
-    const codeBlock = document.getElementById("result");
+</pre>
 
-    codeBlock.textContent = data.translatedCode;
 
-    codeBlock.className = "language-" + targetLang;
+</section>
 
-    Prism.highlightElement(codeBlock);
 
-  } catch (err) {
-    alert("Server error. Make sure backend is running.");
-    console.error(err);
-  }
-}
 
-// Copy Code
-function copyCode() {
 
-  const text = document.getElementById("result").innerText;
-  const btn = document.getElementById("copyBtn");
 
-  if (!text.trim()) {
-    alert("Nothing to copy!");
-    return;
-  }
 
-  navigator.clipboard.writeText(text).then(() => {
 
-    btn.innerText = "Copied!";
 
-    setTimeout(() => {
-      btn.innerText = "Copy";
-    }, 2000);
+<!-- ===========================
+     TRANSLATED CODE
+=========================== -->
 
-  });
 
-}
+<section class="output-card">
 
-// Dark Mode
-function toggleTheme() {
 
-  const body = document.body;
-  const btn = document.getElementById("themeBtn");
+<h2>
 
-  body.classList.toggle("dark-mode");
+💻 Converted Code
 
-  if (body.classList.contains("dark-mode")) {
-    btn.innerText = "☀ Light Mode";
-    localStorage.setItem("theme", "dark");
-  } else {
-    btn.innerText = "🌙 Dark Mode";
-    localStorage.setItem("theme", "light");
-  }
+</h2>
 
-}
 
-// Load Saved Theme
-window.onload = function () {
+<pre>
 
-  const savedTheme = localStorage.getItem("theme");
-  const btn = document.getElementById("themeBtn");
+<code 
 
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark-mode");
-    btn.innerText = "☀ Light Mode";
-  }
+id="result"
 
-};
+class="language-java">
 
-</script>
+// Translation output...
 
-<!-- Prism JS -->
-<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+</code>
+
+</pre>
+
+
+
+<button
+
+class="btn-download"
+
+onclick="downloadCode()">
+
+
+📥 Download Code
+
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ===========================
+     AI EXPLANATION
+=========================== -->
+
+
+<section class="output-card">
+
+
+<h2>
+
+🤖 AI Code Explanation
+
+</h2>
+
+
+<pre>
+
+<code id="explanation">
+
+AI explanation will appear here...
+
+</code>
+
+</pre>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ===========================
+     AI CHAT
+=========================== -->
+
+
+<section class="chat-section">
+
+
+<h2>
+
+💬 AI Programming Assistant
+
+</h2>
+
+
+
+<div class="chat-container">
+
+
+<div 
+
+id="chatMessages"
+
+class="chat-messages">
+
+
+
+<div class="chat-message bot-message">
+
+
+<strong>
+
+🤖 AI:
+
+</strong>
+
+
+Hello Developer 👋
+
+Ask me anything about programming.
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="chat-input-box">
+
+
+<textarea
+
+id="chatInput"
+
+placeholder="Ask AI about your code...">
+
+</textarea>
+
+
+
+<button
+
+id="sendChatBtn"
+
+onclick="sendChatMessage()">
+
+📤 Send
+
+</button>
+<button 
+class="voice-btn"
+onclick="startVoice()">
+
+🎤 Voice AI
+
+</button>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<!-- ===========================
+     FOOTER
+=========================== -->
+
+
+<footer>
+
+
+<p>
+
+⚡ Powered by AI | CodeMorph AI Translator
+
+</p>
+<div class="ai-robot">
+
+<div class="robot-face">
+
+🤖
+
+</div>
+
+
+<div class="robot-message">
+
+AI Ready...
+
+</div>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+</div>
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+
+
+
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script src="three-background.js"></script>
+
 
 </body>
+
 </html>

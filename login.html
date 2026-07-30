@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeMorph AI - Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Poppins, sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  overflow: hidden;
+}
+
+.card {
+  width: 380px;
+  padding: 35px;
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  text-align: center;
+  color: white;
+  animation: fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.logo {
+  font-size: 60px;
+  color: #00e0ff;
+  text-shadow: 0 0 20px #00e0ff;
+}
+
+h2 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+p {
+  opacity: .7;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.input {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.input input {
+  width: 100%;
+  padding: 15px 45px 15px 15px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,.12);
+  color: white;
+  font-size: 15px;
+}
+
+.input input::placeholder {
+  color: #ddd;
+}
+
+.eye {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg,#00c6ff,#0072ff);
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: .3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.loader {
+  display: none;
+  margin-top: 12px;
+}
+
+.loader div {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #00e0ff;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.links {
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.links a {
+  color: #00eaff;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">🤖</div>
+  <h2>Welcome Back</h2>
+  <p>Login to CodeMorph AI Workspace</p>
+
+  <div class="input">
+    <input type="email" id="email" placeholder="Email Address">
+  </div>
+
+  <div class="input">
+    <input type="password" id="password" placeholder="Password">
+    <span class="eye" onclick="togglePassword()">👁️</span>
+  </div>
+
+  <button id="loginBtn" onclick="login()">Login</button>
+
+  <div class="loader" id="loader">
+    <div></div>
+  </div>
+
+  <div class="links">
+    Don't have an account? <a href="register.html">Create Account</a>
+  </div>
+</div>
+
+<script>
+function togglePassword() {
+  const pass = document.getElementById("password");
+  pass.type = pass.type === "password" ? "text" : "password";
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (email === "" || password === "") {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  const btn = document.getElementById("loginBtn");
+  const loader = document.getElementById("loader");
+
+  btn.disabled = true;
+  loader.style.display = "block";
+
+  try {
+    const response = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+if (response.ok) {
+
+  // Save token
+  localStorage.setItem("token", data.token);
+
+  // Save complete user object
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  alert("Login Successful!");
+
+  window.location.href = "index.html";
+}else {
+      alert(data.error || "Invalid Login");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Unable to connect to the server.");
+  }
+
+  btn.disabled = false;
+  loader.style.display = "none";
+}
+</script>
+</body>
+</html>

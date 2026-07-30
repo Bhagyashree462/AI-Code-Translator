@@ -2,18 +2,29 @@
   "name": "ai-code-translator",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "AI Code Translator Backend",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "AI",
+    "code-translator",
+    "machine-learning"
+  ],
+  "author": "Bhagyashree",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.18.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "monaco-editor": "^0.55.1",
+    "mongodb": "^7.4.0",
+    "mongoose": "^9.7.3",
+    "openai": "^7.1.0"
   }
 }

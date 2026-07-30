@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeMorph AI - Register</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.card h2 span {
+    color: #00e0ff;
+}
+
+.input-box {
+    position: relative;
+    margin: 20px 0;
+}
+
+.input-box i {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: #00e0ff;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #00e0ff;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #00bcd4;
+}
+
+.login {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.login a {
+    color: #00e0ff;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <i class="fa-solid fa-robot logo" style="font-size:40px; color:#00e0ff;"></i>
+    <h2>Join <span>CodeMorph AI</span></h2>
+    <p>Create your AI Workspace</p>
+
+    <div class="input-box">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="name" placeholder="Full Name">
+    </div>
+
+    <div class="input-box">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="email" placeholder="Email">
+    </div>
+
+    <div class="input-box">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="password" placeholder="Password">
+    </div>
+
+    <button onclick="register()">
+        <i class="fa-solid fa-arrow-right"></i> Create Account
+    </button>
+
+    <p class="login">
+        Already have an account? <a href="login.html">Login</a>
+    </p>
+</div>
+
+<script>
+async function register() {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!name || !email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters long");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Registration Successful!");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1000);
+        } else {
+            alert(data.error || "Registration Failed");
+        }
+    } catch (error) {    
+        console.error(error);
+        alert("Unable to connect to the server.");
+    }
+}
+</script>
+
+</body>
+</html>
