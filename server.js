@@ -11,7 +11,7 @@ import User from "./models/User.js";
 
 
 dotenv.config();
-
+console.log("API KEY:", process.env.OPENAI_API_KEY);
 
 const app = express();
 
@@ -22,11 +22,21 @@ const openai = new OpenAI({
 
 });
 
+// Add this line here
+console.log(
+    process.env.OPENAI_API_KEY
+        ? "✅ API Loaded"
+        : "❌ API Missing"
+);
+
 
 app.use(cors());
 
 app.use(express.json());
 
+
+// Serve frontend files
+app.use(express.static("."));
 
 
 console.log(
