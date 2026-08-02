@@ -1,317 +1,321 @@
-const API = "http://localhost:5000";
+const API = window.location.origin;
 
-/* ===========================
-   Detect Programming Language
-=========================== */
+/* ==========================================
+   DETECT PROGRAMMING LANGUAGE
+========================================== */
 
-function detectLanguage(code) {
+function detectLanguage() {
 
-    code = code.trim();
+    const code = document.getElementById("sourceCode").value.trim();
+    const detected = document.getElementById("detectedLang");
 
-    if (code.includes("#include")) return "C";
+    if (!code) {
+        detected.textContent = "None";
+        return;
+    }
 
-    if (code.includes("using namespace")) return "C++";
-
-    if (code.includes("System.out")) return "Java";
-
-    if (code.includes("console.log")) return "JavaScript";
+    let language = "Unknown";
 
     if (
         code.includes("def ") ||
         code.includes("print(") ||
         code.includes("input(") ||
-        code.includes("import ")
-    ) return "Python";
+        code.includes("import ") ||
+        code.includes("elif ")
+    ) {
 
-    if (code.includes("using System")) return "C#";
+        language = "Python";
 
-    return "Unknown";
+    }
+
+    else if (
+
+        code.includes("public class") ||
+        code.includes("public static void main") ||
+        code.includes("System.out.println")
+
+    ) {
+
+        language = "Java";
+
+    }
+
+    else if (
+
+        code.includes("console.log") ||
+        code.includes("function ") ||
+        code.includes("const ") ||
+        code.includes("let ") ||
+        code.includes("=>")
+
+    ) {
+
+        language = "JavaScript";
+
+    }
+
+    else if (
+
+        code.includes("#include <iostream>") ||
+        code.includes("using namespace std") ||
+        code.includes("cout")
+
+    ) {
+
+        language = "C++";
+
+    }
+
+    else if (
+
+        code.includes("#include <stdio.h>") ||
+        code.includes("printf(")
+
+    ) {
+
+        language = "C";
+
+    }
+
+    else if (
+
+        code.includes("using System") ||
+        code.includes("Console.WriteLine")
+
+    ) {
+
+        language = "C#";
+
+    }
+
+    detected.textContent = language;
+
 }
-/* ===========================
-   Translate Code
-=========================== */
 
-async function translateCode(){
+/* ==========================================
+   TRANSLATE CODE
+========================================== */
 
-    const code = document.getElementById("sourceCode").value;
+async function translateCode() {
 
+    const sourceCode = document.getElementById("sourceCode").value.trim();
 
-    const target = document.getElementById("targetLang").value;
+    const targetLang = document.getElementById("targetLang").value;
 
+    detectLanguage();
 
-    const sourceLang = 
-    document.getElementById("detectedLang").innerText;
+    const sourceLang = document.getElementById("detectedLang").textContent;
 
+    if (!sourceCode) {
 
-
-    if(code.trim() === ""){
-
-        alert("Please enter code");
+        alert("Please enter source code.");
 
         return;
 
     }
 
-
-    if(sourceLang === "None" || sourceLang === "Unknown"){
-
-        alert("Unable to detect programming language");
-
-        return;
-
-    }
-
-
-
-    try{
-
-
-        const response = await fetch(
-            "http://localhost:5000/translate",
-            {
-
-            method:"POST",
-
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-
-            body:JSON.stringify({
-
-                sourceCode: code,
-
-                sourceLang: sourceLang,
-
-                targetLang: target
-
-            })
-
-
-        });
-
-
-
-        const data = await response.json();
-
-
-
-        if(data.translatedCode){
-
-            document.getElementById("result").textContent =
-            data.translatedCode;
-
-        }
-
-        else{
-
-            document.getElementById("result").textContent =
-            data.error || "Translation failed";
-
-        }
-
-
-
-    }
-
-    catch(error){
-
-
-        console.error(
-            "Translation Error:",
-            error
-        );
-
+    try {
 
         document.getElementById("result").textContent =
-        "Server connection error";
+            "Translating...";
 
+        const response = await fetch(`${API}/translate`, {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                sourceCode,
+                sourceLang,
+                targetLang
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "Translation failed."
+            );
+
+        }
+
+        document.getElementById("result").textContent =
+            data.translatedCode || "No translated code received.";
 
     }
 
+    catch (error) {
 
-}/* ===========================
-   Analyze Code
-=========================== */
+        console.error(error);
 
-async function analyzeCode(){
+        document.getElementById("result").textContent =
+            error.message;
 
-    const code =
-    document.getElementById("sourceCode").value;
+    }
 
+}
+
+/* ==========================================
+   ANALYZE CODE
+========================================== */
+
+async function analyzeCode() {
+
+    const sourceCode =
+        document.getElementById("sourceCode").value.trim();
+
+    detectLanguage();
 
     const sourceLang =
-    document.getElementById("detectedLang").innerText;
+        document.getElementById("detectedLang").textContent;
 
+    if (!sourceCode) {
 
-
-    if(code.trim() === ""){
-
-        alert("Enter code first");
+        alert("Please enter code.");
 
         return;
 
     }
 
+    try {
 
+        const response = await fetch(`${API}/analyze`, {
 
-    try{
+            method: "POST",
 
+            headers: {
 
-        const response = await fetch(
-            "http://localhost:5000/analyze",
-            {
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
 
             },
 
+            body: JSON.stringify({
 
-            body:JSON.stringify({
-
-                sourceCode: code,
-
-                sourceLang: sourceLang
+                sourceCode,
+                sourceLang
 
             })
 
-
         });
-
-
 
         const data = await response.json();
 
-
-
         document.getElementById("errorOutput").textContent =
-        data.errors;
-
-
+            data.errors || "No issues found.";
 
         document.getElementById("fixedCode").textContent =
-        data.fixedCode;
-
-
+            data.fixedCode || "No suggestions.";
 
     }
 
-    catch(error){
+    catch (error) {
 
+        console.error(error);
 
-        console.error(
-            "Analyze Error:",
-            error
-        );
-
+        document.getElementById("errorOutput").textContent =
+            "Analyze failed.";
 
     }
 
-
-}
-/* ===========================
-   Explain Code
-=========================== */
-
-async function explainCode(){
-
-
-const code =
-document.getElementById("sourceCode").value;
-
-
-const language =
-document.getElementById("detectedLang").innerText;
-
-
-
-if(code.trim() === ""){
-
-    alert("Enter code first");
-
-    return;
-
 }
 
+/* ==========================================
+   EXPLAIN CODE
+========================================== */
 
+async function explainCode() {
 
-try{
+    const code =
+        document.getElementById("sourceCode").value.trim();
 
+    detectLanguage();
 
-const response = await fetch(
-"http://localhost:5000/explain",
-{
+    const language =
+        document.getElementById("detectedLang").textContent;
 
-method:"POST",
+    if (!code) {
 
-headers:{
+        alert("Please enter code.");
 
-"Content-Type":"application/json"
+        return;
 
-},
+    }
 
+    try {
 
-body:JSON.stringify({
+        const response = await fetch(`${API}/explain`, {
 
-code: code,
+            method: "POST",
 
-language: language
+            headers: {
 
-})
+                "Content-Type": "application/json"
 
+            },
 
-});
+            body: JSON.stringify({
 
+                code,
+                language
 
+            })
 
-const data = await response.json();
+        });
 
+        const data = await response.json();
 
+        document.getElementById("explanation").textContent =
+            data.explanation || "No explanation available.";
 
-document.getElementById("explanation").textContent =
-data.explanation;
+    }
 
+    catch (error) {
 
+        console.error(error);
+
+        document.getElementById("explanation").textContent =
+            "Explanation failed.";
+
+    }
 
 }
-
-catch(error){
-
-
-console.error(
-"Explain Error:",
-error
-);
-
-
-}
-
-
-}
-/* ===========================
-   Copy Code
-=========================== */
+/* ==========================================
+   COPY CODE
+========================================== */
 
 function copyCode() {
 
-    navigator.clipboard.writeText(
-        document.getElementById("result").textContent
-    );
+    const result = document.getElementById("result").textContent;
 
-    alert("Copied Successfully");
+    if (!result || result.trim() === "") {
+        alert("Nothing to copy.");
+        return;
+    }
+
+    navigator.clipboard.writeText(result)
+        .then(() => {
+            alert("Code copied successfully.");
+        })
+        .catch((error) => {
+            console.error("Copy Error:", error);
+            alert("Unable to copy code.");
+        });
 
 }
 
-/* ===========================
-   Clear All
-=========================== */
+/* ==========================================
+   CLEAR ALL
+========================================== */
 
 function clearAll() {
 
@@ -334,13 +338,21 @@ function clearAll() {
 
 }
 
-/* ===========================
-   Download Code
-=========================== */
+/* ==========================================
+   DOWNLOAD CODE
+========================================== */
 
 function downloadCode() {
 
     const code = document.getElementById("result").textContent;
+
+    if (!code || code.trim() === "") {
+
+        alert("No translated code available.");
+
+        return;
+
+    }
 
     const blob = new Blob([code], {
         type: "text/plain"
@@ -348,26 +360,25 @@ function downloadCode() {
 
     const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
+    const link = document.createElement("a");
 
-    a.href = url;
+    link.href = url;
 
-    a.download = "translated_code.txt";
+    link.download = "translated_code.txt";
 
-    document.body.appendChild(a);
+    document.body.appendChild(link);
 
-    a.click();
+    link.click();
 
-    document.body.removeChild(a);
+    document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
 
 }
 
-/* ===========================
-   AI Chat
-=========================== */
-// ================= AI CHAT ASSISTANT =================
+/* ==========================================
+   AI CHAT
+========================================== */
 
 async function sendChatMessage() {
 
@@ -376,51 +387,41 @@ async function sendChatMessage() {
 
     const userMessage = input.value.trim();
 
-    if (userMessage === "") {
-        alert("Please enter a message");
+    if (!userMessage) {
+
+        alert("Please enter a message.");
+
         return;
+
     }
-
-
-    // Display user message
 
     messages.innerHTML += `
         <div class="chat-message user-message">
-            <strong>👤 You:</strong>
+            <strong>👤 You:</strong><br>
             ${userMessage}
         </div>
     `;
 
-
     input.value = "";
-
-
-    // Loading message
 
     messages.innerHTML += `
         <div class="chat-message bot-message" id="loading">
-            <strong>🤖 AI:</strong>
+            <strong>🤖 AI:</strong><br>
             Thinking...
         </div>
     `;
 
-
     messages.scrollTop = messages.scrollHeight;
-
 
     try {
 
-
-        const response = await fetch("http://localhost:5000/chat", {
+        const response = await fetch(`${API}/chat`, {
 
             method: "POST",
 
             headers: {
-
                 "Content-Type": "application/json"
-
             },
-
 
             body: JSON.stringify({
 
@@ -430,299 +431,223 @@ async function sendChatMessage() {
 
         });
 
-
-
         const data = await response.json();
 
+        const loading = document.getElementById("loading");
 
-        document.getElementById("loading").remove();
+        if (loading) {
 
+            loading.remove();
 
+        }
 
         messages.innerHTML += `
-
             <div class="chat-message bot-message">
-
-                <strong>🤖 AI:</strong>
-
-                ${data.reply}
-
+                <strong>🤖 AI:</strong><br>
+                ${data.reply || "No response received."}
             </div>
-
         `;
-
-
 
     }
 
-    catch(error) {
+    catch (error) {
 
+        console.error("Chat Error:", error);
 
-        document.getElementById("loading").remove();
+        const loading = document.getElementById("loading");
 
+        if (loading) {
+
+            loading.remove();
+
+        }
 
         messages.innerHTML += `
-
-        <div class="chat-message bot-message">
-
-            <strong>🤖 AI:</strong>
-
-            Server connection failed.
-
-        </div>
-
+            <div class="chat-message bot-message">
+                <strong>🤖 AI:</strong><br>
+                Unable to connect to the server.
+            </div>
         `;
 
-
-        console.error(error);
-
     }
-
 
     messages.scrollTop = messages.scrollHeight;
 
 }
-// ================= LANGUAGE DETECTION =================
 
-function detectLanguage() {
+/* ==========================================
+   ENTER KEY SUPPORT
+========================================== */
 
-    const code = document.getElementById("sourceCode").value;
+const chatInput = document.getElementById("chatInput");
 
-    const detected = document.getElementById("detectedLang");
+if (chatInput) {
 
+    chatInput.addEventListener("keydown", function (e) {
 
-    if (code.trim() === "") {
+        if (e.key === "Enter" && !e.shiftKey) {
 
-        detected.innerHTML = "None";
+            e.preventDefault();
 
-        return;
+            sendChatMessage();
 
-    }
+        }
 
-
-    let language = "Unknown";
-
-
-    // Python detection
-
-    if (
-        code.includes("def ") ||
-        code.includes("import ") ||
-        code.includes("print(") ||
-        code.includes("elif ")
-    ) {
-
-        language = "Python";
-
-    }
-
-
-    // Java detection
-
-    else if (
-        code.includes("public class") ||
-        code.includes("System.out.println") ||
-        code.includes("public static void main")
-    ) {
-
-        language = "Java";
-
-    }
-
-
-    // JavaScript detection
-
-    else if (
-        code.includes("console.log") ||
-        code.includes("function ") ||
-        code.includes("const ") ||
-        code.includes("let ")
-    ) {
-
-        language = "JavaScript";
-
-    }
-
-
-    // C detection
-
-    else if (
-        code.includes("#include <stdio.h>") ||
-        code.includes("printf(")
-    ) {
-
-        language = "C";
-
-    }
-
-
-    // C++ detection
-
-    else if (
-        code.includes("#include <iostream>") ||
-        code.includes("cout")
-    ) {
-
-        language = "C++";
-
-    }
-
-
-    detected.innerHTML = language;
+    });
 
 }
-/* ===========================
-   Enter Key Support
-=========================== */
+/* ==========================================
+   AI VOICE COMMAND
+========================================== */
 
-document.getElementById("chatInput").addEventListener("keydown", function (e) {
+function startVoice() {
 
-    if (e.key === "Enter" && !e.shiftKey) {
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
-        e.preventDefault();
+    if (!SpeechRecognition) {
 
-        sendMessage();
+        alert("Voice recognition is not supported in this browser.\nPlease use Google Chrome.");
+
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
+
+        const btn = document.querySelector(".voice-btn");
+
+        if (btn) {
+
+            btn.innerHTML = "🎙 Listening...";
+
+            btn.disabled = true;
+
+        }
+
+        console.log("Voice recognition started...");
+
+    };
+
+    recognition.onresult = function (event) {
+
+        const transcript = event.results[0][0].transcript;
+
+        console.log("Voice Input:", transcript);
+
+        const input = document.getElementById("chatInput");
+
+        if (input) {
+
+            input.value = transcript;
+
+            input.focus();
+
+        }
+
+    };
+
+    recognition.onerror = function (event) {
+
+        console.error("Voice Error:", event.error);
+
+        alert("Voice Recognition Error: " + event.error);
+
+    };
+
+    recognition.onend = function () {
+
+        const btn = document.querySelector(".voice-btn");
+
+        if (btn) {
+
+            btn.innerHTML = "🎤 Voice AI";
+
+            btn.disabled = false;
+
+        }
+
+    };
+
+    recognition.start();
+
+}
+
+/* ==========================================
+   PAGE INITIALIZATION
+========================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    console.log("✅ CodeMorph AI Loaded Successfully");
+
+    const sourceCode = document.getElementById("sourceCode");
+
+    if (sourceCode) {
+
+        sourceCode.addEventListener("input", detectLanguage);
+
+    }
+
+    const result = document.getElementById("result");
+
+    if (result) {
+
+        result.textContent = "// Translation will appear here...";
+
+    }
+
+    const explanation = document.getElementById("explanation");
+
+    if (explanation) {
+
+        explanation.textContent = "Explanation will appear here...";
+
+    }
+
+    const errorOutput = document.getElementById("errorOutput");
+
+    if (errorOutput) {
+
+        errorOutput.textContent = "No errors detected.";
+
+    }
+
+    const fixedCode = document.getElementById("fixedCode");
+
+    if (fixedCode) {
+
+        fixedCode.textContent = "Corrected code will appear here...";
 
     }
 
 });
-// ===============================
-// AI VOICE COMMAND
-// ===============================
 
+/* ==========================================
+   GLOBAL ERROR HANDLER
+========================================== */
 
-function startVoice(){
+window.addEventListener("error", function (event) {
 
+    console.error("JavaScript Error:", event.message);
 
-const SpeechRecognition =
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
+});
 
+/* ==========================================
+   UNHANDLED PROMISE REJECTION
+========================================== */
 
+window.addEventListener("unhandledrejection", function (event) {
 
-if(!SpeechRecognition){
+    console.error("Unhandled Promise:", event.reason);
 
+});
 
-alert(
-"Voice recognition is not supported. Use Google Chrome."
-);
-
-
-return;
-
-
-}
-
-
-
-const recognition =
-new SpeechRecognition();
-
-
-
-recognition.lang="en-US";
-
-
-recognition.continuous=false;
-
-
-recognition.interimResults=false;
-
-
-
-
-recognition.start();
-
-
-
-console.log(
-"Listening..."
-);
-
-
-
-
-recognition.onstart=function(){
-
-
-document.querySelector(".voice-btn").innerHTML=
-"🎙 Listening...";
-
-
-};
-
-
-
-
-
-recognition.onresult=function(event){
-
-
-
-let voiceText =
-event.results[0][0].transcript;
-
-
-
-console.log(
-voiceText
-);
-
-
-
-
-document.getElementById(
-"chatInput"
-).value=voiceText;
-
-
-
-document.querySelector(".voice-btn").innerHTML=
-"🎤 Voice AI";
-
-
-
-};
-
-
-
-
-
-
-recognition.onerror=function(event){
-
-
-
-console.log(
-event.error
-);
-
-
-
-document.querySelector(".voice-btn").innerHTML=
-"🎤 Voice AI";
-
-
-alert(
-"Voice error: "+event.error
-);
-
-
-};
-
-
-
-
-
-recognition.onend=function(){
-
-
-document.querySelector(".voice-btn").innerHTML=
-"🎤 Voice AI";
-
-
-};
-
-
-
-}
+console.log("🚀 CodeMorph AI Script Loaded");
