@@ -1,5 +1,6 @@
-const API = window.location.origin;
 
+// With your Render backend URL:
+const API = "https://ai-code-translator-4yje.onrender.com";
 /* ==========================================
    DETECT PROGRAMMING LANGUAGE
 ========================================== */
@@ -341,41 +342,62 @@ function clearAll() {
 /* ==========================================
    DOWNLOAD CODE
 ========================================== */
-
 function downloadCode() {
-
-    const code = document.getElementById("result").textContent;
-
-    if (!code || code.trim() === "") {
-
-        alert("No translated code available.");
-
+    // 1. Get code content from your output element
+    const codeElement = document.getElementById("result");
+    const codeText = codeElement ? (codeElement.innerText || codeElement.textContent) : "";
+    if (!codeText || codeText.trim() === "") {
+        alert("There is no translated code to download!");
         return;
-
     }
 
-    const blob = new Blob([code], {
-        type: "text/plain"
-    });
+    // 2. Get target language selection
+    const targetLangSelect = document.getElementById("targetLang");
+    const selectedLang = targetLangSelect ? targetLangSelect.value.toLowerCase() : "";
 
-    const url = URL.createObjectURL(blob);
+    // 3. Map language names/keys to file extensions
+    const extensionMap = {
+        python: "py",
+        py: "py",
+        javascript: "js",
+        js: "js",
+        typescript: "ts",
+        ts: "ts",
+        c: "c",
+        cpp: "cpp",
+        "c++": "cpp",
+        csharp: "cs",
+        "c#": "cs",
+        java: "java",
+        html: "html",
+        css: "css",
+        php: "php",
+        ruby: "rb",
+        go: "go",
+        rust: "rs",
+        swift: "swift",
+        kotlin: "kt",
+        sql: "sql",
+        json: "json",
+        shell: "sh",
+        bash: "sh"
+    };
 
+    // 4. Determine extension or fallback to .txt
+    const extension = extensionMap[selectedLang] || "txt";
+    const filename = `translated_code.${extension}`;
+
+    // 5. Trigger automatic file download
+    const blob = new Blob([codeText], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
-
-    link.href = url;
-
-    link.download = "translated_code.txt";
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
 
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
-
+    URL.revokeObjectURL(link.href);
 }
-
 /* ==========================================
    AI CHAT
 ========================================== */
@@ -617,7 +639,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (errorOutput) {
 
         errorOutput.textContent = "No errors detected.";
-
+        
     }
 
     const fixedCode = document.getElementById("fixedCode");
