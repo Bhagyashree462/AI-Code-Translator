@@ -552,3 +552,147 @@ footer {
         display: none; /* Hidden on small screens to prevent covering UI elements */
     }
 }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body.auth-body {
+  min-height: 100vh;
+  background-color: #3f3e4d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Card Container */
+.auth-card {
+  background: #5c5a6b;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 35px;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+/* Robot Glowing Icon */
+.bot-icon-wrapper {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bot-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #00e5ff;
+  border-radius: 50%;
+  filter: blur(25px);
+  opacity: 0.8;
+}
+
+.bot-icon {
+  position: relative;
+  font-size: 40px;
+  z-index: 1;
+}
+
+/* Headings */
+.auth-card h2 {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.auth-card h2 span {
+  color: #00e5ff;
+}
+
+.subtitle {
+  color: #c0bece;
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+
+/* Input Fields */
+.input-group {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00e5ff;
+  font-size: 16px;
+}
+
+.input-group input {
+  width: 100%;
+  background: #737184;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 14px 14px 45px;
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-group input::placeholder {
+  color: #9e9cb0;
+}
+
+.input-group input:focus {
+  background: #7f7d93;
+  box-shadow: 0 0 0 2px #00e5ff;
+}
+
+/* Cyan Button */
+.btn-cyan {
+  width: 100%;
+  background: #00e5ff;
+  color: #000000;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 25px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-cyan:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 229, 255, 0.4);
+}
+
+/* Footer Link */
+.footer-text {
+  color: #c0bece;
+  font-size: 14px;
+}
+
+.footer-text a {
+  color: #00e5ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-text a:hover {
+  text-decoration: underline;
+}
