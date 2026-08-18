@@ -12,7 +12,7 @@ import User from "./models/User.js";
 dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
-const cors = require('cors');
+
 // Enable CORS for all origins
 app.use(cors());
 // Increase JSON payload size limits so zip file contents aren't rejected
