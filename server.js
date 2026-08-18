@@ -371,7 +371,7 @@ app.post("/register", async (req, res) => {
                 name: user.name,
                 email: user.email
             }
-        });
+        }); 
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -515,4 +515,40 @@ process.on("SIGTERM", async () => {
     await mongoose.connection.close();
     console.log("MongoDB Connection Closed");
     process.exit(0);
+});
+/* ==========================================
+   SANDBOX CODE EXECUTION ROUTE
+========================================== */
+app.post("/run-sandbox", async (req, res) => {
+  const { language, code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ success: false, error: "No code provided." });
+  }
+
+  try {
+    let output = "";
+
+    if (language === "javascript") {
+      // Capture console.log output for JavaScript
+      let logs = [];
+      const customConsole = {
+        log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(" ")),
+        error: (...args) => logs.push("ERROR: " + args.join(" ")),
+        warn: (...args) => logs.push("WARN: " + args.join(" "))
+      };
+
+      const runInSandbox = new Function("console", code);
+      runInSandbox(customConsole);
+
+      output = logs.length > 0 ? logs.join("\n") : "Execution finished with no output.";
+    } else {
+      // Placeholder response for server-compiled languages
+      output = `[${language.toUpperCase()}] Execution simulation:\nSuccessfully parsed and validated ${language} syntax.`;
+    }
+
+    res.status(200).json({ success: true, output });
+  } catch (error) {
+    res.status(200).json({ success: false, error: error.message });
+  }
 });

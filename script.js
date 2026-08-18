@@ -596,7 +596,6 @@ async function processZipUpload() {
 /* ==========================================
    SANDBOX CODE RUNNER
 ========================================== */
-
 let pyodideInstance = null;
 
 async function initPyodide() {
@@ -609,36 +608,78 @@ async function initPyodide() {
 }
 
 async function runSandboxCode() {
-    const lang = document.getElementById('sandboxLang')?.value;
-    const code = document.getElementById('sandboxCode')?.value;
-    const outputElem = document.getElementById('sandboxOutput');
+    const lang = document.getElementById('sandboxLang')?.value || document.getElementById('sandboxLanguageSelect')?.value;
+    const code = document.getElementById('sandboxCode')?.value || document.getElementById('sandboxCodeInput')?.value;
+    const outputElem = document.getElementById('sandboxOutput') || document.getElementById('terminalOutput');
 
     if (!outputElem) return;
 
+    if (!code || !code.trim()) {
+        outputElem.textContent = "⚠️ Please enter or paste code to run.";
+        return;
+    }
+
     outputElem.textContent = "Running...";
 
+    // 1. JavaScript Execution (Client-side)
     if (lang === 'javascript') {
         try {
             let logs = [];
             const originalLog = console.log;
-            console.log = (...args) => logs.push(args.join(' '));
+            console.log = (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
 
             const result = new Function(code)();
             console.log = originalLog;
 
-            outputElem.textContent = logs.length > 0 ? logs.join('\n') : (result !== undefined ? result : 'Execution finished with no output.');
+            outputElem.textContent = logs.length > 0 
+                ? logs.join('\n') 
+                : (result !== undefined ? String(result) : 'Execution finished with no output.');
         } catch (err) {
             outputElem.textContent = "❌ Runtime Error: " + err.message;
         }
-    } else if (lang === 'python') {
+    } 
+    // 2. Python Execution (Pyodide WebAssembly)
+    else if (lang === 'python') {
         try {
             await initPyodide();
-            pyodideInstance.setStdout({ batched: (str) => { outputElem.textContent = str; } });
+            let outputLogs = [];
+            pyodideInstance.setStdout({ 
+                batched: (str) => { outputLogs.push(str); } 
+            });
 
             let result = await pyodideInstance.runPythonAsync(code);
-            if (result !== undefined) outputElem.textContent += "\nResult: " + result;
+            
+            let outputText = outputLogs.join('\n');
+            if (result !== undefined) {
+                outputText += (outputText ? "\n" : "") + "Result: " + result;
+            }
+
+            outputElem.textContent = outputText || 'Execution finished with no output.';
         } catch (err) {
             outputElem.textContent = "❌ Python Error:\n" + err.message;
+        }
+    } 
+    // 3. Compiled Languages Execution (Java, C++, C#, TypeScript via Server)
+    else {
+        try {
+            outputElem.textContent = `⏳ Compiling and running ${lang.toUpperCase()}...`;
+
+            const response = await fetch(`${window.location.origin}/run-sandbox`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ language: lang, code: code })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                outputElem.textContent = data.output || 'Execution finished with no output.';
+            } else {
+                outputElem.textContent = "❌ Execution Error:\n" + (data.error || "Unknown server error.");
+            }
+        } catch (err) {
+            console.error("Server Sandbox Execution Error:", err);
+            outputElem.textContent = "❌ Unable to connect to execution server.";
         }
     }
 }

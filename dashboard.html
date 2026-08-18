@@ -703,24 +703,28 @@ AI Ready...
   <div id="conversionStatus" style="margin-top: 10px; color: #00f2fe;"></div>
 </div>
 <!-- Live Code Sandbox Section -->
-<div class="card sandbox-section" style="margin-top: 20px;">
+<!-- Live Code Sandbox Section -->
+<div class="sandbox-container">
   <h3>🧪 Live Code Sandbox</h3>
   <p>Run and verify translated code snippets directly in your browser.</p>
 
-  <div class="sandbox-controls" style="margin-bottom: 10px;">
-    <select id="sandboxLang">
-      <option value="javascript">JavaScript</option>
-      <option value="python">Python (Pyodide WebAssembly)</option>
-    </select>
-    <button class="btn-primary" onclick="runSandboxCode()">▶ Run Code</button>
-  </div>
+  <!-- Expanded Language Selection Menu -->
+  <select id="sandboxLanguageSelect" class="form-select">
+    <option value="javascript">JavaScript (Node.js / Browser)</option>
+    <option value="python">Python (Pyodide WebAssembly)</option>
+    <option value="typescript">TypeScript</option>
+    <option value="java">Java</option>
+    <option value="cpp">C++</option>
+    <option value="csharp">C# (.NET)</option>
+  </select>
 
-  <textarea id="sandboxCode" rows="8" style="width: 100%; background: #0f172a; color: #00f2fe; padding: 10px; border-radius: 8px; font-family: monospace;" placeholder="Paste or translate code here..."></textarea>
+  <button id="runCodeBtn" class="btn btn-primary mt-2">▶ Run Code</button>
 
-  <h4 style="margin-top: 15px; color: #cbd5e1;">Terminal Output:</h4>
-  <pre id="sandboxOutput" style="background: #000; color: #00ff66; padding: 12px; border-radius: 8px; min-height: 80px; font-family: monospace; overflow-x: auto;">Output will appear here...</pre>
+  <textarea id="sandboxCodeInput" placeholder="Paste or translate code here..."></textarea>
+
+  <h4>Terminal Output:</h4>
+  <pre id="terminalOutput">Execution finished with no output.</pre>
 </div>
-
 <!-- Load Pyodide CDN for In-Browser Python Execution -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 <!-- GitHub Export Section -->
