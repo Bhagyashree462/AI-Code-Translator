@@ -4,6 +4,12 @@ const API = "https://ai-code-translator-4yje.onrender.com";
 /* ==========================================
    USER AUTHENTICATION (REGISTER & LOGIN)
 ========================================== */
+/* ==========================================
+   USER AUTHENTICATION (REGISTER & LOGIN)
+========================================== */
+
+// Dynamically sets host URL (works locally and in production)
+const API_BASE = window.location.origin;
 
 document.addEventListener("DOMContentLoaded", function () {
     // 1. Registration Form Handler
@@ -17,7 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const password = document.getElementById("passwordInput")?.value;
 
             try {
-                const response = await fetch(`${API}/api/register`, {
+                // Route updated to match backend route: /register
+                const response = await fetch(`${API_BASE}/register`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ name, email, password })
@@ -48,7 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const password = document.getElementById("loginPassword")?.value;
 
             try {
-                const response = await fetch(`${API}/api/login`, {
+                // Route updated to match backend route: /login
+                const response = await fetch(`${API_BASE}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
@@ -72,7 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-
 /* ==========================================
    DETECT PROGRAMMING LANGUAGE
 ========================================== */
