@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import OpenAI from "openai";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
 import Translation from "./models/Translation.js";
 import User from "./models/User.js";
@@ -31,16 +31,16 @@ app.use(cors({
 }));
 
 // Payload limits for Zip uploads
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Serve static files
 app.use(express.static(__dirname));
 app.use(express.static("."));
+
 /* ==========================================
    ENVIRONMENT CHECK
 ========================================== */
-
 console.log("====================================");
 console.log("Environment Status");
 console.log("====================================");
@@ -68,7 +68,6 @@ console.log("====================================");
 /* ==========================================
    OPENROUTER CLIENT CONFIGURATION
 ========================================== */
-
 const openai = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY,
@@ -81,7 +80,6 @@ const openai = new OpenAI({
 /* ==========================================
    MONGODB CONNECTION
 ========================================== */
-
 async function connectDB() {
     try {
         await mongoose.connect(process.env.MONGO_URI);
@@ -94,9 +92,8 @@ async function connectDB() {
 }
 
 /* ==========================================
-   AI TRANSLATION
+   AI HELPER FUNCTIONS
 ========================================== */
-
 async function translateWithAI(sourceCode, sourceLang, targetLang) {
     try {
         const response = await openai.chat.completions.create({
@@ -123,10 +120,6 @@ async function translateWithAI(sourceCode, sourceLang, targetLang) {
     }
 }
 
-/* ==========================================
-   AI CODE EXPLANATION
-========================================== */
-
 async function explainCodeAI(code, language) {
     try {
         const response = await openai.chat.completions.create({
@@ -152,10 +145,6 @@ async function explainCodeAI(code, language) {
         );
     }
 }
-
-/* ==========================================
-   AI ERROR ANALYSIS
-========================================== */
 
 async function analyzeCodeAI(sourceCode, language) {
     try {
@@ -197,8 +186,26 @@ async function analyzeCodeAI(sourceCode, language) {
 }
 
 /* ==========================================
-   TRANSLATE ROUTE
+   ROUTES
 ========================================== */
+app.get("/", (req, res) => {
+    res.json({
+        success: true,
+        message: "🚀 CodeMorph AI Backend is Running"
+    });
+});
+
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        success: true,
+        status: "OK",
+        server: "Running",
+        mongodb:
+            mongoose.connection.readyState === 1
+                ? "Connected"
+                : "Disconnected"
+    });
+});
 
 app.post("/translate", async (req, res) => {
     try {
@@ -230,10 +237,6 @@ app.post("/translate", async (req, res) => {
     }
 });
 
-/* ==========================================
-   ANALYZE ROUTE
-========================================== */
-
 app.post("/analyze", async (req, res) => {
     try {
         const { sourceCode, sourceLang } = req.body;
@@ -264,10 +267,6 @@ app.post("/analyze", async (req, res) => {
     }
 });
 
-/* ==========================================
-   EXPLAIN ROUTE
-========================================== */
-
 app.post("/explain", async (req, res) => {
     try {
         const { code, language } = req.body;
@@ -296,10 +295,6 @@ app.post("/explain", async (req, res) => {
         });
     }
 });
-
-/* ==========================================
-   AI CHAT ROUTE
-========================================== */
 
 app.post("/chat", async (req, res) => {
     try {
@@ -339,37 +334,6 @@ app.post("/chat", async (req, res) => {
         });
     }
 });
-
-/* ==========================================
-   HOME ROUTE
-========================================== */
-
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "🚀 CodeMorph AI Backend is Running"
-    });
-});
-
-/* ==========================================
-   HEALTH CHECK
-========================================== */
-
-app.get("/health", (req, res) => {
-    res.status(200).json({
-        success: true,
-        status: "OK",
-        server: "Running",
-        mongodb:
-            mongoose.connection.readyState === 1
-                ? "Connected"
-                : "Disconnected"
-    });
-});
-
-/* ==========================================
-   REGISTER
-========================================== */
 
 app.post("/register", async (req, res) => {
     try {
@@ -416,10 +380,6 @@ app.post("/register", async (req, res) => {
         });
     }
 });
-
-/* ==========================================
-   LOGIN
-========================================== */
 
 app.post("/login", async (req, res) => {
     try {
@@ -475,63 +435,57 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// 👇 PASTE THE NEW MULTI-FILE CONVERTER ROUTE HERE 👇
-app.post('/api/translate-repo', async (req, res) => {
-  const { fileTree, targetLanguage } = req.body;
+app.post("/api/translate-repo", async (req, res) => {
+    const { fileTree, targetLanguage } = req.body;
 
-  if (!fileTree || !Array.isArray(fileTree)) {
-    return res.status(400).json({ error: 'Invalid file tree structure.' });
-  }
+    if (!fileTree || !Array.isArray(fileTree)) {
+        return res.status(400).json({ error: "Invalid file tree structure." });
+    }
 
-  try {
-    const extensionMap = {
-      python: '.py',
-      javascript: '.js',
-      typescript: '.ts',
-      java: '.java',
-      cpp: '.cpp',
-      csharp: '.cs'
-    };
+    try {
+        const extensionMap = {
+            python: ".py",
+            javascript: ".js",
+            typescript: ".ts",
+            java: ".java",
+            cpp: ".cpp",
+            csharp: ".cs"
+        };
 
-    const targetExt = extensionMap[targetLanguage?.toLowerCase()] || '.txt';
+        const targetExt = extensionMap[targetLanguage?.toLowerCase()] || ".txt";
 
-    const translatedFiles = await Promise.all(
-      fileTree.map(async (file) => {
-        // 1. Change extension dynamically
-        const newPath = file.path.replace(/\.[^/.]+$/, targetExt);
+        const translatedFiles = await Promise.all(
+            fileTree.map(async (file) => {
+                const newPath = file.path.replace(/\.[^/.]+$/, targetExt);
+                let newContent = file.content;
+                
+                if (targetLanguage === "python") {
+                    newContent = newContent
+                        .replace(/import\s+\{(.*?)\}\s+from\s+['"]\.\/(.*?)['"];?/g, "from $2 import $1")
+                        .replace(/export\s+function\s+/g, "def ");
+                }
 
-        // 2. Call your AI model (e.g., Google Gemini or OpenAI)
-        // const prompt = `Translate the following code to ${targetLanguage}:\n\n${file.content}`;
-        // const aiResponse = await callYourAiModel(prompt);
+                return { path: newPath, content: newContent };
+            })
+        );
 
-        // Fallback or Regex Mock:
-        let newContent = file.content;
-        if (targetLanguage === 'python') {
-          newContent = newContent
-            .replace(/import\s+\{(.*?)\}\s+from\s+['"]\.\/(.*?)['"];?/g, 'from $2 import $1')
-            .replace(/export\s+function\s+/g, 'def ');
-        }
-
-        return { path: newPath, content: newContent };
-      })
-    );
-
-    res.json({ translatedFiles });
-  } catch (error) {
-    console.error('AI Translation Error:', error);
-    res.status(500).json({ error: 'Failed to translate project files.' });
-  }
+        res.json({ translatedFiles });
+    } catch (error) {
+        console.error("AI Translation Error:", error);
+        res.status(500).json({ error: "Failed to translate project files." });
+    }
 });
+
 /* ==========================================
    START SERVER
 ========================================== */
-
 async function startServer() {
     try {
         await connectDB();
+        
         const PORT = process.env.PORT || 3000;
 
-        app.listen(PORT, () => {
+        app.listen(PORT, "0.0.0.0", () => {
             console.log("====================================");
             console.log("🚀 CodeMorph AI Server Started");
             console.log(`🌐 Port : ${PORT}`);
@@ -547,9 +501,8 @@ async function startServer() {
 startServer();
 
 /* ==========================================
-   SHUTDOWN
+   SHUTDOWN HANDLERS
 ========================================== */
-
 process.on("SIGINT", async () => {
     console.log("\nStopping Server...");
     await mongoose.connection.close();
@@ -562,38 +515,4 @@ process.on("SIGTERM", async () => {
     await mongoose.connection.close();
     console.log("MongoDB Connection Closed");
     process.exit(0);
-});
-
-/*zip files and download*/
-app.use(express.json({ limit: '50mb' }));
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.post('/api/translate-repo', async (req, res) => {
-  const { fileTree, targetLanguage } = req.body;
-  if (!fileTree || !Array.isArray(fileTree)) {
-    return res.status(400).json({ error: 'Invalid file tree structure.' });
-  }
-
-  try {
-    const translatedFiles = fileTree.map(file => {
-      const newPath = file.path.replace(/\.js$/, targetLanguage === 'python' ? '.py' : '.ts');
-      return { path: newPath, content: file.content };
-    });
-    res.json({ translatedFiles });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to translate project files.' });
-  }
-});
-// ✅ Use process.env.PORT for Render, fallback to 3000 locally
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`====================================`);
-  console.log(`🚀 CodeMorph AI Server Started`);
-  console.log(`🌐 Port : ${PORT}`);
-  console.log(`====================================`);
 });
