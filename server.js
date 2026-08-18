@@ -5,38 +5,38 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import OpenAI from "openai";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import Translation from "./models/Translation.js";
 import User from "./models/User.js";
 
 dotenv.config();
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Enable CORS for all origins
-app.use(cors());
-// Increase JSON payload size limits so zip file contents aren't rejected
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Define __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-/* ==========================================
-   EXPRESS APP
-========================================== */
 
+/* ====================================
+   EXPRESS APP INITIALIZATION
+==================================== */
 const app = express();
-//app.use(express.static(__dirname));
 
+/* ====================================
+   MIDDLEWARE SETUP
+==================================== */
 app.use(cors({
     origin: true,
     credentials: true
 }));
 
-app.use(express.json());
-app.use(express.static("."));
+// Payload limits for Zip uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Serve static files
+app.use(express.static(__dirname));
+app.use(express.static("."));
 /* ==========================================
    ENVIRONMENT CHECK
 ========================================== */
