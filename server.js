@@ -10,12 +10,19 @@ import Translation from "./models/Translation.js";
 import User from "./models/User.js";
 
 dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+
+// Define __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 /* ==========================================
    EXPRESS APP
 ========================================== */
 
 const app = express();
+//app.use(express.static(__dirname));
 
 app.use(cors({
     origin: true,
@@ -463,6 +470,53 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// 👇 PASTE THE NEW MULTI-FILE CONVERTER ROUTE HERE 👇
+app.post('/api/translate-repo', async (req, res) => {
+  const { fileTree, targetLanguage } = req.body;
+
+  if (!fileTree || !Array.isArray(fileTree)) {
+    return res.status(400).json({ error: 'Invalid file tree structure.' });
+  }
+
+  try {
+    const extensionMap = {
+      python: '.py',
+      javascript: '.js',
+      typescript: '.ts',
+      java: '.java',
+      cpp: '.cpp',
+      csharp: '.cs'
+    };
+
+    const targetExt = extensionMap[targetLanguage?.toLowerCase()] || '.txt';
+
+    const translatedFiles = await Promise.all(
+      fileTree.map(async (file) => {
+        // 1. Change extension dynamically
+        const newPath = file.path.replace(/\.[^/.]+$/, targetExt);
+
+        // 2. Call your AI model (e.g., Google Gemini or OpenAI)
+        // const prompt = `Translate the following code to ${targetLanguage}:\n\n${file.content}`;
+        // const aiResponse = await callYourAiModel(prompt);
+
+        // Fallback or Regex Mock:
+        let newContent = file.content;
+        if (targetLanguage === 'python') {
+          newContent = newContent
+            .replace(/import\s+\{(.*?)\}\s+from\s+['"]\.\/(.*?)['"];?/g, 'from $2 import $1')
+            .replace(/export\s+function\s+/g, 'def ');
+        }
+
+        return { path: newPath, content: newContent };
+      })
+    );
+
+    res.json({ translatedFiles });
+  } catch (error) {
+    console.error('AI Translation Error:', error);
+    res.status(500).json({ error: 'Failed to translate project files.' });
+  }
+});
 /* ==========================================
    START SERVER
 ========================================== */
@@ -470,7 +524,7 @@ app.post("/login", async (req, res) => {
 async function startServer() {
     try {
         await connectDB();
-        const PORT = process.env.PORT || 5000;
+        const PORT = process.env.PORT || 3000;
 
         app.listen(PORT, () => {
             console.log("====================================");
@@ -506,57 +560,31 @@ process.on("SIGTERM", async () => {
 });
 
 /*zip files and download*/
-const express = require('express');
-const app = express();
-app.use(express.json({ limit: '50mb' })); // Higher limit for handling full repository JSON payload
+app.use(express.json({ limit: '50mb' }));
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 app.post('/api/translate-repo', async (req, res) => {
   const { fileTree, targetLanguage } = req.body;
-
   if (!fileTree || !Array.isArray(fileTree)) {
     return res.status(400).json({ error: 'Invalid file tree structure.' });
   }
 
-  // System instructions for dependency re-mapping
-  const prompt = `
-You are an expert software architecture translator. 
-Convert the following code repository into ${targetLanguage}.
-
-Key Requirements:
-1. Maintain exact cross-file logic and relationships.
-2. Adjust file extensions appropriate for ${targetLanguage} (e.g., .js -> .py).
-3. Re-write all import, export, require, and module paths to align with ${targetLanguage} syntax and conventions.
-4. Return ONLY a valid JSON array containing objects with keys "path" and "content".
-
-Input Repository File Tree:
-${JSON.stringify(fileTree, null, 2)}
-`;
-
   try {
-    /* 
-       Example integration using Google Gemini / AI Provider SDK:
-       const response = await aiClient.generateContent(prompt);
-       const translatedFiles = JSON.parse(response.text);
-    */
-
-    // Placeholder mock response simulating AST conversion:
     const translatedFiles = fileTree.map(file => {
       const newPath = file.path.replace(/\.js$/, targetLanguage === 'python' ? '.py' : '.ts');
-      let newContent = file.content;
-
-      if (targetLanguage === 'python') {
-        // Simple regex replace demo for ES module imports to Python
-        newContent = newContent
-          .replace(/import\s+\{(.*?)\}\s+from\s+['"]\.\/(.*?)['"];?/g, 'from $2 import $1')
-          .replace(/export\s+function\s+/g, 'def ');
-      }
-
-      return { path: newPath, content: newContent };
+      return { path: newPath, content: file.content };
     });
-
     res.json({ translatedFiles });
   } catch (error) {
-    console.error('AI Translation Error:', error);
     res.status(500).json({ error: 'Failed to translate project files.' });
   }
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
