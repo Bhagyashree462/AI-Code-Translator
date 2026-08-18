@@ -588,8 +588,12 @@ app.post('/api/translate-repo', async (req, res) => {
     res.status(500).json({ error: 'Failed to translate project files.' });
   }
 });
+// ✅ Use process.env.PORT for Render, fallback to 3000 locally
+const PORT = process.env.PORT || 3000;
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`====================================`);
+  console.log(`🚀 CodeMorph AI Server Started`);
+  console.log(`🌐 Port : ${PORT}`);
+  console.log(`====================================`);
 });
