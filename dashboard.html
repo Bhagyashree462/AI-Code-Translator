@@ -661,6 +661,10 @@ AI Ready...
 <script src="script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+<!-- Add JSZip and FileSaver CDN libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 <script src="three-background.js"></script>
 
 
@@ -673,6 +677,78 @@ AI Ready...
     window.location.href = 'index.html'; // Direct back to Registration
   }
 </script>
+<!-- Multi-File Converter Section -->
+<div class="card converter-section">
+  <h3>📁 Multi-File / Repository Converter</h3>
+  <p>Upload a project .zip or paste a GitHub repo to translate an entire project structure.</p>
+
+  <div class="input-group">
+    <label>Upload Zip File:</label>
+    <input type="file" id="zipFileInput" accept=".zip" />
+  </div>
+
+  <div class="input-group" style="margin-top: 15px;">
+    <label>Target Language:</label>
+    <select id="targetLanguageSelect">
+      <option value="python">Python</option>
+      <option value="javascript">JavaScript</option>
+      <option value="typescript">TypeScript</option>
+    </select>
+  </div>
+
+  <button id="convertZipBtn" class="btn-primary" style="margin-top: 15px;" onclick="processZipUpload()">
+    ⚡ Translate Project Zip
+  </button>
+  
+  <div id="conversionStatus" style="margin-top: 10px; color: #00f2fe;"></div>
+</div>
+<!-- Live Code Sandbox Section -->
+<div class="card sandbox-section" style="margin-top: 20px;">
+  <h3>🧪 Live Code Sandbox</h3>
+  <p>Run and verify translated code snippets directly in your browser.</p>
+
+  <div class="sandbox-controls" style="margin-bottom: 10px;">
+    <select id="sandboxLang">
+      <option value="javascript">JavaScript</option>
+      <option value="python">Python (Pyodide WebAssembly)</option>
+    </select>
+    <button class="btn-primary" onclick="runSandboxCode()">▶ Run Code</button>
+  </div>
+
+  <textarea id="sandboxCode" rows="8" style="width: 100%; background: #0f172a; color: #00f2fe; padding: 10px; border-radius: 8px; font-family: monospace;" placeholder="Paste or translate code here..."></textarea>
+
+  <h4 style="margin-top: 15px; color: #cbd5e1;">Terminal Output:</h4>
+  <pre id="sandboxOutput" style="background: #000; color: #00ff66; padding: 12px; border-radius: 8px; min-height: 80px; font-family: monospace; overflow-x: auto;">Output will appear here...</pre>
+</div>
+
+<!-- Load Pyodide CDN for In-Browser Python Execution -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+<!-- GitHub Export Section -->
+<div class="card github-section" style="margin-top: 20px;">
+  <h3>🐙 Push to GitHub Pull Request</h3>
+  <p>Export translated code directly as a new PR on your GitHub repository.</p>
+
+  <div class="input-group">
+    <label>GitHub Personal Access Token (repo scope):</label>
+    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" required />
+  </div>
+
+  <div class="input-group" style="margin-top: 10px;">
+    <label>Repository (Owner/Repo):</label>
+    <input type="text" id="githubRepo" placeholder="username/repository-name" required />
+  </div>
+
+  <div class="input-group" style="margin-top: 10px;">
+    <label>File Target Path:</label>
+    <input type="text" id="githubFilePath" placeholder="src/translated_code.py" required />
+  </div>
+
+  <button class="btn-glow" style="margin-top: 15px;" onclick="exportToGitHub()">
+    🚀 Create GitHub Pull Request
+  </button>
+
+  <div id="githubStatus" style="margin-top: 10px; font-weight: 600;"></div>
+</div>
 </body>
 
 </html>

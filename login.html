@@ -1,45 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeMorph AI - Login</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg-dark);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Floating Animated Glow Blobs */
+    .blob {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.4;
+      animation: float 8s infinite alternate ease-in-out;
+    }
+    .blob-1 { background: #00f2fe; top: 10%; left: 15%; }
+    .blob-2 { background: #7f00ff; bottom: 10%; right: 15%; animation-delay: -4s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-40px) scale(1.1); }
+    }
+
+    /* Glassmorphism Card */
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      z-index: 10;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Interactive Mascot Eye Tracking Animation */
+    .mascot {
+      font-size: 48px;
+      display: inline-block;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .mascot.peek { transform: translateY(-8px) scale(1.1) rotate(-5deg); }
+    .mascot.cover { transform: scale(0.9) rotate(15deg); filter: blur(1px); }
+
+    h2 { color: #fff; margin-top: 10px; font-size: 24px; }
+    h2 span { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { color: #94a3b8; font-size: 13px; margin: 8px 0 24px; }
+
+    .field { text-align: left; margin-bottom: 18px; }
+    .field label { display: block; color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+    }
+
+    .btn-glow {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      color: #0b0f19;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 242, 254, 0.4);
+    }
+
+    .footer { margin-top: 20px; color: #94a3b8; font-size: 13px; }
+    .footer a { color: var(--accent-cyan); text-decoration: none; font-weight: 600; }
+  </style>
 </head>
-<body class="auth-body">
+<body>
 
-  <div class="auth-card glass-card">
-    <h2>🤖 CodeMorph AI</h2>
-    <h3>Welcome Back</h3>
-    <p>Sign in to access your translation dashboard</p>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
+  <div class="login-card">
+    <div class="mascot" id="mascot">🤖</div>
+    <h2>Welcome to <span>CodeMorph AI</span></h2>
+    <p class="subtitle">Sign in to access your translation dashboard</p>
+
+    <!-- Form connected to handleLogin function -->
     <form id="loginForm" onsubmit="handleLogin(event)">
-      <div class="input-field">
+      <div class="field">
         <label>Email Address</label>
         <input type="email" id="loginEmail" placeholder="developer@example.com" required />
       </div>
 
-      <div class="input-field">
+      <div class="field">
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required />
       </div>
 
-      <button type="submit" class="btn-primary">Sign In & Open Dashboard 🚀</button>
+      <button type="submit" class="btn-glow">Sign In & Open Dashboard 🚀</button>
     </form>
 
-    <p class="auth-redirect">
-      Don't have an account? <a href="index.html">Register here</a>
-    </p>
+    <p class="footer">Don't have an account? <a href="index.html">Register here</a></p>
   </div>
 
   <script>
+    const mascot = document.getElementById('mascot');
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+
+    // Mascot animations
+    emailInput.addEventListener('focus', () => {
+      mascot.className = 'mascot peek';
+    });
+
+    passwordInput.addEventListener('focus', () => {
+      mascot.className = 'mascot cover';
+    });
+
+    [emailInput, passwordInput].forEach(input => {
+      input.addEventListener('blur', () => {
+        mascot.className = 'mascot';
+      });
+    });
+
+    // Login handler with dashboard redirect
     function handleLogin(event) {
       event.preventDefault();
       
       // Save authenticated session token/flag
       localStorage.setItem('isAuthenticated', 'true');
       
-      // REDIRECT TO STEP 3: DASHBOARD
+      // Redirect directly to dashboard
       window.location.href = 'dashboard.html';
     }
   </script>

@@ -671,5 +671,230 @@ window.addEventListener("unhandledrejection", function (event) {
     console.error("Unhandled Promise:", event.reason);
 
 });
+const toggleBtn = document.getElementById('themeToggleBtn');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
 
+// Check saved preference or default to dark
+const savedTheme = localStorage.getItem('theme') || 'dark';
+setTheme(savedTheme);
+
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  });
+}
+
+function setTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    if (themeIcon) themeIcon.textContent = '🌙';
+    if (themeText) themeText.textContent = 'Dark Mode';
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if (themeIcon) themeIcon.textContent = '☀️';
+    if (themeText) themeText.textContent = 'Light Mode';
+    localStorage.setItem('theme', 'dark');
+  }
+}
+async function processZipUpload() {
+  const fileInput = document.getElementById('zipFileInput');
+  const targetLang = document.getElementById('targetLanguageSelect').value;
+  const statusDiv = document.getElementById('conversionStatus');
+
+  if (!fileInput.files.length) {
+    alert('Please select a .zip file first!');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const zip = new JSZip();
+
+  try {
+    statusDiv.textContent = "Reading zip archive...";
+    const loadedZip = await zip.loadAsync(file);
+    const fileTree = [];
+
+    // Extract all text files from the zip
+    for (const [relativePath, zipEntry] of Object.entries(loadedZip.files)) {
+      if (!zipEntry.dir && !relativePath.includes('node_modules') && !relativePath.startsWith('.')) {
+        const content = await zipEntry.async('string');
+        fileTree.push({
+          path: relativePath,
+          content: content
+        });
+      }
+    }
+
+    statusDiv.textContent = "Sending project files to AI for dependency mapping & translation...";
+
+    // Send file tree to backend
+    const response = await fetch('/api/translate-repo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileTree: fileTree,
+        targetLanguage: targetLang
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Translation failed.');
+    }
+
+    statusDiv.textContent = "Packing converted files into new zip archive...";
+
+    // Generate new Zip archive with converted code
+    const outputZip = new JSZip();
+    data.translatedFiles.forEach(file => {
+      outputZip.file(file.path, file.content);
+    });
+
+    // Generate zip blob and trigger download
+    const zipBlob = await outputZip.generateAsync({ type: "blob" });
+    saveAs(zipBlob, `translated_${targetLang}_project.zip`);
+
+    statusDiv.textContent = "✅ Conversion complete! Your download has started.";
+  } catch (error) {
+    console.error('Error during conversion:', error);
+    statusDiv.textContent = "❌ Error processing project: " + error.message;
+  }
+}
+
+let pyodideInstance = null;
+
+// Initialize Pyodide on page load
+async function initPyodide() {
+  if (!pyodideInstance) {
+    const outputElem = document.getElementById('sandboxOutput');
+    outputElem.textContent = "Loading Python WebAssembly runtime...";
+    pyodideInstance = await loadPyodide();
+    outputElem.textContent = "Python runtime ready!";
+  }
+}
+
+async function runSandboxCode() {
+  const lang = document.getElementById('sandboxLang').value;
+  const code = document.getElementById('sandboxCode').value;
+  const outputElem = document.getElementById('sandboxOutput');
+
+  outputElem.textContent = "Running...";
+
+  if (lang === 'javascript') {
+    try {
+      // Capture console.log output
+      let logs = [];
+      const originalLog = console.log;
+      console.log = (...args) => logs.push(args.join(' '));
+
+      // Execute JS code safely
+      const result = new Function(code)();
+      
+      console.log = originalLog; // Restore original console.log
+      outputElem.textContent = logs.length > 0 ? logs.join('\n') : (result !== undefined ? result : 'Execution finished with no output.');
+    } catch (err) {
+      outputElem.textContent = "❌ Runtime Error: " + err.message;
+    }
+  } else if (lang === 'python') {
+    try {
+      await initPyodide();
+      
+      // Redirect Python stdout to output element
+      pyodideInstance.setStdout({
+        batched: (str) => { outputElem.textContent = str; }
+      });
+
+      let result = await pyodideInstance.runPythonAsync(code);
+      if (result !== undefined) {
+        outputElem.textContent += "\nResult: " + result;
+      }
+    } catch (err) {
+      outputElem.textContent = "❌ Python Error:\n" + err.message;
+    }
+  }
+}
+async function exportToGitHub() {
+  const token = document.getElementById('githubToken').value;
+  const repo = document.getElementById('githubRepo').value; // e.g., "owner/repo"
+  const filePath = document.getElementById('githubFilePath').value;
+  const content = document.getElementById('sandboxCode').value; // Code snippet to push
+  const statusDiv = document.getElementById('githubStatus');
+
+  if (!token || !repo || !filePath || !content) {
+    alert("Please fill in all GitHub export fields!");
+    return;
+  }
+
+  const [owner, repoName] = repo.split('/');
+  const newBranchName = `codemorph-translate-${Date.now()}`;
+  const headers = {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+
+  try {
+    statusDiv.style.color = '#00f2fe';
+    statusDiv.textContent = "1/4 Fetching default branch info...";
+
+    // 1. Get default branch (main/master) SHA
+    const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers });
+    const repoData = await repoRes.json();
+    const defaultBranch = repoData.default_branch || 'main';
+
+    const refRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}/git/ref/heads/${defaultBranch}`, { headers });
+    const refData = await refRes.json();
+    const baseSha = refData.object.sha;
+
+    // 2. Create a new branch
+    statusDiv.textContent = "2/4 Creating new feature branch...";
+    await fetch(`https://api.github.com/repos/${owner}/${repoName}/git/refs`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        ref: `refs/heads/${newBranchName}`,
+        sha: baseSha
+      })
+    });
+
+    // 3. Commit translated file to the new branch (base64 encoded)
+    statusDiv.textContent = "3/4 Committing translated code...";
+    await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/${filePath}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        message: 'feat: Add CodeMorph AI translated code',
+        content: btoa(content), // Base64 encoding
+        branch: newBranchName
+      })
+    });
+
+    // 4. Create Pull Request
+    statusDiv.textContent = "4/4 Opening Pull Request...";
+    const prRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}/pulls`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        title: '🤖 CodeMorph AI: Converted Code Integration',
+        head: newBranchName,
+        base: defaultBranch,
+        body: 'This PR contains automatically translated code generated by **CodeMorph AI**.'
+      })
+    });
+
+    const prData = await prRes.json();
+    statusDiv.style.color = '#00ff66';
+    statusDiv.innerHTML = `✅ Pull Request Created! <a href="${prData.html_url}" target="_blank" style="color:#00f2fe;">View PR #${prData.number}</a>`;
+
+  } catch (err) {
+    console.error(err);
+    statusDiv.style.color = '#ff4d4d';
+    statusDiv.textContent = "❌ GitHub Export Failed: " + err.message;
+  }
+}
 console.log("🚀 CodeMorph AI Script Loaded");

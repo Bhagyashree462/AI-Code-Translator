@@ -696,3 +696,73 @@ body.auth-body {
 .footer-text a:hover {
   text-decoration: underline;
 }
+
+/* Add at the top of style.css */
+:root {
+  /* Default Dark Mode */
+  --bg-body: #0f172a;
+  --bg-card: #2f3342;
+  --bg-input: #1e293b;
+  --text-main: #ffffff;
+  --text-muted: #cbd5e1;
+  --text-placeholder: #94a3b8;
+  --border-input: #475569;
+  --btn-bg: #00d2ff;
+  --btn-text: #0f172a;
+  --btn-hover: #00b4dc;
+  --toggle-bg: #1e293b;
+  --toggle-border: #475569;
+}
+
+[data-theme="light"] {
+  /* Light Mode Switch */
+  --bg-body: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-input: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-placeholder: #94a3b8;
+  --border-input: #cbd5e1;
+  --btn-bg: #00a8cc;
+  --btn-text: #ffffff;
+  --btn-hover: #0088a6;
+  --toggle-bg: #e2e8f0;
+  --toggle-border: #cbd5e1;
+}
+
+body {
+  background-color: var(--bg-body);
+}
+
+.card {
+  background-color: var(--bg-card);
+}
+
+/* Fix input text visibility */
+.input-group input {
+  background-color: var(--bg-input);
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-input);
+}
+
+.input-group input::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* Theme Toggle Button Style */
+.theme-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

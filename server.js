@@ -504,3 +504,59 @@ process.on("SIGTERM", async () => {
     console.log("MongoDB Connection Closed");
     process.exit(0);
 });
+
+/*zip files and download*/
+const express = require('express');
+const app = express();
+app.use(express.json({ limit: '50mb' })); // Higher limit for handling full repository JSON payload
+
+app.post('/api/translate-repo', async (req, res) => {
+  const { fileTree, targetLanguage } = req.body;
+
+  if (!fileTree || !Array.isArray(fileTree)) {
+    return res.status(400).json({ error: 'Invalid file tree structure.' });
+  }
+
+  // System instructions for dependency re-mapping
+  const prompt = `
+You are an expert software architecture translator. 
+Convert the following code repository into ${targetLanguage}.
+
+Key Requirements:
+1. Maintain exact cross-file logic and relationships.
+2. Adjust file extensions appropriate for ${targetLanguage} (e.g., .js -> .py).
+3. Re-write all import, export, require, and module paths to align with ${targetLanguage} syntax and conventions.
+4. Return ONLY a valid JSON array containing objects with keys "path" and "content".
+
+Input Repository File Tree:
+${JSON.stringify(fileTree, null, 2)}
+`;
+
+  try {
+    /* 
+       Example integration using Google Gemini / AI Provider SDK:
+       const response = await aiClient.generateContent(prompt);
+       const translatedFiles = JSON.parse(response.text);
+    */
+
+    // Placeholder mock response simulating AST conversion:
+    const translatedFiles = fileTree.map(file => {
+      const newPath = file.path.replace(/\.js$/, targetLanguage === 'python' ? '.py' : '.ts');
+      let newContent = file.content;
+
+      if (targetLanguage === 'python') {
+        // Simple regex replace demo for ES module imports to Python
+        newContent = newContent
+          .replace(/import\s+\{(.*?)\}\s+from\s+['"]\.\/(.*?)['"];?/g, 'from $2 import $1')
+          .replace(/export\s+function\s+/g, 'def ');
+      }
+
+      return { path: newPath, content: newContent };
+    });
+
+    res.json({ translatedFiles });
+  } catch (error) {
+    console.error('AI Translation Error:', error);
+    res.status(500).json({ error: 'Failed to translate project files.' });
+  }
+});

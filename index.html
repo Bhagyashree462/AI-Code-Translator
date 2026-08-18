@@ -1,62 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Join CodeMorph AI</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f172a; /* Dark background */
+    }
+
+    .card {
+      background: #525266; /* Form card background */
+      padding: 40px 30px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-wrapper {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 16px;
+      background: rgba(0, 210, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    h2 {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    h2 span {
+      color: #00d2ff; /* Cyan highlight */
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+      font-size: 13px;
+      margin-top: 6px;
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .input-group span {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #94a3b8;
+    }
+
+    /* Input Field Fixes */
+    .input-group input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      background-color: #1e293b; /* Dark contrast background for input */
+      color: #ffffff;             /* Bright visible text color */
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    /* Placeholder Text Visibility Fix */
+    .input-group input::placeholder {
+      color: #94a3b8;
+    }
+
+    .input-group input:focus {
+      border-color: #00d2ff;
+      box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background-color: #00d2ff;
+      color: #0f172a;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #00b4dc;
+    }
+
+    .footer-text {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .footer-text a {
+      color: #00d2ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body class="auth-body">
-
-  <div class="auth-card">
-    
-    <!-- Glowing Robot Logo -->
-    <div class="bot-icon-wrapper">
-      <div class="bot-glow"></div>
-      <div class="bot-icon">🤖</div>
-    </div>
-
-    <!-- Headers -->
+<body>
+<button class="theme-toggle-btn" id="themeToggleBtn">
+  <span id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
+</button>
+  <div class="card">
+    <div class="icon-wrapper">🤖</div>
     <h2>Join <span>CodeMorph AI</span></h2>
     <p class="subtitle">Create your AI Workspace</p>
 
-    <!-- Registration Form -->
-    <form id="registerForm" onsubmit="handleRegistration(event)">
-      
+    <form>
       <div class="input-group">
-        <span class="input-icon">👤</span>
-        <input type="text" id="fullName" placeholder="Full Name" required />
+        <span>👤</span>
+        <input type="text" placeholder="Username" required />
       </div>
 
       <div class="input-group">
-        <span class="input-icon">✉️</span>
-        <input type="email" id="email" placeholder="Email" required />
+        <span>✉️</span>
+        <input type="email" placeholder="Email" required />
       </div>
 
       <div class="input-group">
-        <span class="input-icon">🔒</span>
-        <input type="password" id="password" placeholder="Password" required />
+        <span>🔒</span>
+        <input type="password" placeholder="Password" required />
       </div>
 
-      <button type="submit" class="btn-cyan">➔ Create Account</button>
+      <button type="submit" class="btn-submit">➔ Create Account</button>
     </form>
 
     <p class="footer-text">
-      Already have an account? <a href="login.html">Login</a>
+      Already have an account? <a href="#">Login</a>
     </p>
-
   </div>
-
-  <script>
-    function handleRegistration(event) {
-      event.preventDefault();
-      // Store flag for registration
-      localStorage.setItem('userRegistered', 'true');
-      // Redirect to Login Page
-      window.location.href = 'login.html';
-    }
-  </script>
-
+<script src="script.js"></script>
 </body>
 </html>
