@@ -5,6 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Join CodeMorph AI</title>
   <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #525266;
+      --text-color: #ffffff;
+      --subtitle-color: #cbd5e1;
+      --input-bg: #1e293b;
+      --input-text: #ffffff;
+      --input-border: #334155;
+      --placeholder-color: #94a3b8;
+      --accent-color: #00d2ff;
+      --btn-hover: #00b4dc;
+      --btn-text: #0f172a;
+    }
+
+    [data-theme="light"], body.light-theme {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-color: #0f172a;
+      --subtitle-color: #475569;
+      --input-bg: #f8fafc;
+      --input-text: #0f172a;
+      --input-border: #cbd5e1;
+      --placeholder-color: #64748b;
+      --accent-color: #0284c7;
+      --btn-hover: #0369a1;
+      --btn-text: #ffffff;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -17,17 +45,45 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #0f172a; /* Dark background */
+      background: var(--bg-color);
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+
+    /* Position Theme Toggle Button Top Right */
+    .theme-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--input-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
     }
 
     .card {
-      background: #525266; /* Form card background */
+      background: var(--card-bg);
       padding: 40px 30px;
       border-radius: 16px;
       width: 100%;
       max-width: 380px;
       text-align: center;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
     }
 
     .icon-wrapper {
@@ -43,17 +99,17 @@
     }
 
     h2 {
-      color: #ffffff;
+      color: var(--text-color);
       font-size: 22px;
       font-weight: 700;
     }
 
     h2 span {
-      color: #00d2ff; /* Cyan highlight */
+      color: var(--accent-color);
     }
 
     .subtitle {
-      color: #cbd5e1;
+      color: var(--subtitle-color);
       font-size: 13px;
       margin-top: 6px;
       margin-bottom: 24px;
@@ -70,29 +126,27 @@
       top: 50%;
       transform: translateY(-50%);
       font-size: 16px;
-      color: #94a3b8;
+      color: var(--placeholder-color);
     }
 
-    /* Input Field Fixes */
     .input-group input {
       width: 100%;
       padding: 12px 14px 12px 42px;
-      background-color: #1e293b; /* Dark contrast background for input */
-      color: #ffffff;             /* Bright visible text color */
-      border: 1px solid #334155;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      border: 1px solid var(--input-border);
       border-radius: 8px;
       font-size: 14px;
       outline: none;
       transition: all 0.2s ease;
     }
 
-    /* Placeholder Text Visibility Fix */
     .input-group input::placeholder {
-      color: #94a3b8;
+      color: var(--placeholder-color);
     }
 
     .input-group input:focus {
-      border-color: #00d2ff;
+      border-color: var(--accent-color);
       box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
     }
 
@@ -100,8 +154,8 @@
       width: 100%;
       padding: 12px;
       margin-top: 10px;
-      background-color: #00d2ff;
-      color: #0f172a;
+      background-color: var(--accent-color);
+      color: var(--btn-text);
       font-weight: 700;
       border: none;
       border-radius: 8px;
@@ -111,17 +165,17 @@
     }
 
     .btn-submit:hover {
-      background-color: #00b4dc;
+      background-color: var(--btn-hover);
     }
 
     .footer-text {
       margin-top: 20px;
       font-size: 13px;
-      color: #cbd5e1;
+      color: var(--subtitle-color);
     }
 
     .footer-text a {
-      color: #00d2ff;
+      color: var(--accent-color);
       text-decoration: none;
       font-weight: 600;
     }
@@ -132,37 +186,41 @@
   </style>
 </head>
 <body>
-<button class="theme-toggle-btn" id="themeToggleBtn">
-  <span id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
-</button>
+
+  <button class="theme-toggle-btn" id="themeToggleBtn">
+    <span id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
+  </button>
+
   <div class="card">
     <div class="icon-wrapper">🤖</div>
     <h2>Join <span>CodeMorph AI</span></h2>
     <p class="subtitle">Create your AI Workspace</p>
 
-    <form>
+    <!-- Form linked to script.js with id="registerForm" -->
+    <form id="registerForm">
       <div class="input-group">
         <span>👤</span>
-        <input type="text" placeholder="Username" required />
+        <input type="text" id="nameInput" placeholder="Username" required />
       </div>
 
       <div class="input-group">
         <span>✉️</span>
-        <input type="email" placeholder="Email" required />
+        <input type="email" id="emailInput" placeholder="Email" required />
       </div>
 
       <div class="input-group">
         <span>🔒</span>
-        <input type="password" placeholder="Password" required />
+        <input type="password" id="passwordInput" placeholder="Password" required />
       </div>
 
       <button type="submit" class="btn-submit">➔ Create Account</button>
     </form>
 
     <p class="footer-text">
-      Already have an account? <a href="#">Login</a>
+      Already have an account? <a href="login.html">Login</a>
     </p>
   </div>
-<script src="script.js"></script>
+
+  <script src="script.js"></script>
 </body>
 </html>

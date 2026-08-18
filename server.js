@@ -12,7 +12,12 @@ import User from "./models/User.js";
 dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+const cors = require('cors');
+// Enable CORS for all origins
+app.use(cors());
+// Increase JSON payload size limits so zip file contents aren't rejected
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Define __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
