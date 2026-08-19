@@ -725,6 +725,7 @@ AI Ready...
   <h4>Terminal Output:</h4>
   <pre id="terminalOutput">Execution finished with no output.</pre>
 </div>
+
 <!-- Load Pyodide CDN for In-Browser Python Execution -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 <!-- GitHub Export Section -->
@@ -753,6 +754,49 @@ AI Ready...
 
   <div id="githubStatus" style="margin-top: 10px; font-weight: 600;"></div>
 </div>
+<script>
+async function createGitHubPR() {
+    // Check both possible ID naming variants
+    const token = document.getElementById('githubToken')?.value || document.getElementById('ghToken')?.value;
+    const repo = document.getElementById('githubRepo')?.value || document.getElementById('ghRepo')?.value;
+    const path = document.getElementById('githubPath')?.value || document.getElementById('ghPath')?.value;
+    
+    // Check output code box variants
+    const code = document.getElementById('outputCode')?.value 
+              || document.getElementById('translatedCode')?.value 
+              || document.getElementById('translatedOutput')?.textContent;
+
+    if (!token || !repo || !path) {
+        alert("Please fill in all GitHub export fields!");
+        return;
+    }
+
+    if (!code || !code.trim()) {
+        alert("No translated code available to export! Please translate code first.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/create-pr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, repo, path, code })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ Pull Request created successfully!\n${data.prUrl}`);
+        } else {
+            alert(`❌ Failed to create PR: ${data.error}`);
+        }
+    } catch (err) {
+        alert("❌ Error connecting to server.");
+    }
+}
+</script>
+<button id="btnCreatePR" class="btn btn-primary" onclick="createGitHubPR()">
+  🚀 Create GitHub Pull Request
+</button>
 </body>
 
 </html>
