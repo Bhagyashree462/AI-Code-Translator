@@ -516,14 +516,13 @@ process.on("SIGTERM", async () => {
     console.log("MongoDB Connection Closed");
     process.exit(0);
 });
-
 /* ==========================================
    SANDBOX CODE EXECUTION ROUTE
 ========================================== */
 app.post("/run-sandbox", async (req, res) => {
     const { language, code } = req.body;
 
-    if (!code) {
+    if (!code || !code.trim()) {
         return res.status(400).json({ success: false, error: "No code provided." });
     }
 
@@ -557,10 +556,10 @@ app.post("/run-sandbox", async (req, res) => {
         const targetLang = pistonLangMap[language];
 
         if (!targetLang) {
-            return res.status(400).json({ success: false, error: "Language not supported for execution." });
+            return res.status(400).json({ success: false, error: `Language '${language}' is not supported.` });
         }
 
-        // Fetch execution results from Piston
+        // Send code to Piston API
         const pistonResponse = await fetch("https://emkc.org/api/v2/piston/execute", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -576,9 +575,9 @@ app.post("/run-sandbox", async (req, res) => {
         if (pistonData.run && pistonData.run.output) {
             output = pistonData.run.output;
         } else if (pistonData.message) {
-            output = `Error: ${pistonData.message}`;
+            output = `Piston API Error: ${pistonData.message}`;
         } else {
-            output = "Execution finished with no output.";
+            output = "Execution failed: No output returned from compiler.";
         }
 
         res.status(200).json({ success: true, output });
