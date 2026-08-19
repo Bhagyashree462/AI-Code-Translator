@@ -516,39 +516,75 @@ process.on("SIGTERM", async () => {
     console.log("MongoDB Connection Closed");
     process.exit(0);
 });
+
 /* ==========================================
    SANDBOX CODE EXECUTION ROUTE
 ========================================== */
 app.post("/run-sandbox", async (req, res) => {
-  const { language, code } = req.body;
+    const { language, code } = req.body;
 
-  if (!code) {
-    return res.status(400).json({ success: false, error: "No code provided." });
-  }
-
-  try {
-    let output = "";
-
-    if (language === "javascript") {
-      // Capture console.log output for JavaScript
-      let logs = [];
-      const customConsole = {
-        log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(" ")),
-        error: (...args) => logs.push("ERROR: " + args.join(" ")),
-        warn: (...args) => logs.push("WARN: " + args.join(" "))
-      };
-
-      const runInSandbox = new Function("console", code);
-      runInSandbox(customConsole);
-
-      output = logs.length > 0 ? logs.join("\n") : "Execution finished with no output.";
-    } else {
-      // Placeholder response for server-compiled languages
-      output = `[${language.toUpperCase()}] Execution simulation:\nSuccessfully parsed and validated ${language} syntax.`;
+    if (!code) {
+        return res.status(400).json({ success: false, error: "No code provided." });
     }
 
-    res.status(200).json({ success: true, output });
-  } catch (error) {
-    res.status(200).json({ success: false, error: error.message });
-  }
+    try {
+        let output = "";
+
+        // 1. Local JavaScript Execution
+        if (language === "javascript") {
+            let logs = [];
+            const customConsole = {
+                log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(" ")),
+                error: (...args) => logs.push("ERROR: " + args.join(" ")),
+                warn: (...args) => logs.push("WARN: " + args.join(" "))
+            };
+
+            const runInSandbox = new Function("console", code);
+            runInSandbox(customConsole);
+
+            output = logs.length > 0 ? logs.join("\n") : "Execution finished with no output.";
+            return res.status(200).json({ success: true, output });
+        }
+
+        // 2. Remote Execution for Compiled Languages via Piston API
+        const pistonLangMap = {
+            "java": { language: "java", version: "15.0.2" },
+            "cpp": { language: "c++", version: "10.2.0" },
+            "csharp": { language: "csharp", version: "6.12.0" },
+            "typescript": { language: "typescript", version: "5.0.3" }
+        };
+
+        const targetLang = pistonLangMap[language];
+
+        if (!targetLang) {
+            return res.status(400).json({ success: false, error: "Language not supported for execution." });
+        }
+
+        // Fetch execution results from Piston
+        const pistonResponse = await fetch("https://emkc.org/api/v2/piston/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                language: targetLang.language,
+                version: targetLang.version,
+                files: [{ content: code }]
+            })
+        });
+
+        const pistonData = await pistonResponse.json();
+
+        if (pistonData.run && pistonData.run.output) {
+            output = pistonData.run.output;
+        } else if (pistonData.message) {
+            output = `Error: ${pistonData.message}`;
+        } else {
+            output = "Execution finished with no output.";
+        }
+
+        res.status(200).json({ success: true, output });
+
+    } catch (error) {
+        console.error("Sandbox Execution Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
