@@ -728,75 +728,618 @@ AI Ready...
 
 <!-- Load Pyodide CDN for In-Browser Python Execution -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-<!-- GitHub Export Section -->
+<!-- ==========================================
+     GITHUB PULL REQUEST EXPORT
+========================================== -->
+
 <div class="card github-section" style="margin-top: 20px;">
-  <h3>🐙 Push to GitHub Pull Request</h3>
-  <p>Export translated code directly as a new PR on your GitHub repository.</p>
 
-  <div class="input-group">
-    <label>GitHub Personal Access Token (repo scope):</label>
-    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" required />
-  </div>
+    <h3>🐙 Push to GitHub Pull Request</h3>
 
-  <div class="input-group" style="margin-top: 10px;">
-    <label>Repository (Owner/Repo):</label>
-    <input type="text" id="githubRepo" placeholder="username/repository-name" required />
-  </div>
+    <p>
+        Export translated code directly as a new PR
+        on your GitHub repository.
+    </p>
 
-  <div class="input-group" style="margin-top: 10px;">
-    <label>File Target Path:</label>
-    <input type="text" id="githubFilePath" placeholder="src/translated_code.py" required />
-  </div>
+    <!-- GitHub Token -->
+    <div class="input-group">
 
-  <button class="btn-glow" style="margin-top: 15px;" onclick="exportToGitHub()">
-    🚀 Create GitHub Pull Request
-  </button>
+        <label for="githubToken">
+            GitHub Personal Access Token (repo scope):
+        </label>
 
-  <div id="githubStatus" style="margin-top: 10px; font-weight: 600;"></div>
+        <input
+            type="password"
+            id="githubToken"
+            placeholder="ghp_xxxxxxxxxxxx"
+            autocomplete="off"
+        />
+
+    </div>
+
+
+    <!-- Repository -->
+    <div class="input-group" style="margin-top: 10px;">
+
+        <label for="githubRepo">
+            Repository (Owner/Repo):
+        </label>
+
+        <input
+            type="text"
+            id="githubRepo"
+            placeholder="username/repository-name"
+        />
+
+    </div>
+
+
+    <!-- File Path -->
+    <div class="input-group" style="margin-top: 10px;">
+
+        <label for="githubFilePath">
+            File Target Path:
+        </label>
+
+        <input
+            type="text"
+            id="githubFilePath"
+            placeholder="src/translated_code.py"
+        />
+
+    </div>
+
+
+    <!-- Create PR Button -->
+    <button
+        type="button"
+        id="btnCreatePR"
+        class="btn-glow"
+        style="margin-top: 15px;"
+        onclick="exportToGitHub()"
+    >
+        🚀 Create GitHub Pull Request
+    </button>
+
+
+    <!-- Status -->
+    <div
+        id="githubStatus"
+        style="
+            margin-top: 10px;
+            font-weight: 600;
+        "
+    ></div>
+
 </div>
+
+
 <script>
-async function createGitHubPR() {
-    // Check both possible ID naming variants
-    const token = document.getElementById('githubToken')?.value || document.getElementById('ghToken')?.value;
-    const repo = document.getElementById('githubRepo')?.value || document.getElementById('ghRepo')?.value;
-    const path = document.getElementById('githubPath')?.value || document.getElementById('ghPath')?.value;
-    
-    // Check output code box variants
-    const code = document.getElementById('outputCode')?.value 
-              || document.getElementById('translatedCode')?.value 
-              || document.getElementById('translatedOutput')?.textContent;
 
-    if (!token || !repo || !path) {
-        alert("Please fill in all GitHub export fields!");
+/* ==========================================
+   GITHUB EXPORT FUNCTION
+========================================== */
+
+async function exportToGitHub() {
+
+    // ------------------------------------------
+    // Get GitHub form values
+    // ------------------------------------------
+
+    const token =
+        document.getElementById('githubToken')?.value.trim();
+
+    const repo =
+        document.getElementById('githubRepo')?.value.trim();
+
+    const filePath =
+        document.getElementById('githubFilePath')?.value.trim();
+
+
+    // ------------------------------------------
+    // Get translated code
+    //
+    // Your translated code is inside:
+    // <code id="result"></code>
+    // ------------------------------------------
+
+    const resultElement =
+        document.getElementById('result');
+
+    const content =
+        resultElement?.textContent?.trim();
+
+
+    // ------------------------------------------
+    // Status element
+    // ------------------------------------------
+
+    const statusDiv =
+        document.getElementById('githubStatus');
+
+
+    // ------------------------------------------
+    // Validate GitHub fields
+    // ------------------------------------------
+
+    if (!token || !repo || !filePath) {
+
+        alert(
+            "Please fill in all GitHub export fields!"
+        );
+
         return;
     }
 
-    if (!code || !code.trim()) {
-        alert("No translated code available to export! Please translate code first.");
+
+    // ------------------------------------------
+    // Validate translated code
+    // ------------------------------------------
+
+    if (!content) {
+
+        alert(
+            "No translated code available!\n\n" +
+            "Please translate your code first."
+        );
+
         return;
     }
+
+
+    // ------------------------------------------
+    // Validate repository format
+    //
+    // Example:
+    // Bhagyashree462/AI-Code-Translator
+    // ------------------------------------------
+
+    const repoParts = repo.split('/');
+
+    if (
+        repoParts.length !== 2 ||
+        !repoParts[0] ||
+        !repoParts[1]
+    ) {
+
+        alert(
+            "Invalid GitHub repository format.\n\n" +
+            "Use:\nOwner/Repository"
+        );
+
+        return;
+    }
+
+
+    const owner =
+        repoParts[0].trim();
+
+    const repoName =
+        repoParts[1].trim();
+
+
+    // ------------------------------------------
+    // Branch name
+    // ------------------------------------------
+
+    const newBranchName =
+        `codemorph-translate-${Date.now()}`;
+
+
+    // ------------------------------------------
+    // GitHub API headers
+    // ------------------------------------------
+
+    const headers = {
+
+        'Authorization': `Bearer ${token}`,
+
+        'Accept':
+            'application/vnd.github+json',
+
+        'Content-Type':
+            'application/json',
+
+        'X-GitHub-Api-Version':
+            '2022-11-28'
+    };
+
+
+    // ------------------------------------------
+    // Unicode-safe Base64 encoding
+    // ------------------------------------------
+
+    function encodeBase64(text) {
+
+        const bytes =
+            new TextEncoder().encode(text);
+
+        let binary = '';
+
+        const chunkSize = 0x8000;
+
+        for (
+            let i = 0;
+            i < bytes.length;
+            i += chunkSize
+        ) {
+
+            const chunk =
+                bytes.subarray(
+                    i,
+                    i + chunkSize
+                );
+
+            binary += String.fromCharCode(
+                ...chunk
+            );
+        }
+
+        return btoa(binary);
+    }
+
 
     try {
-        const response = await fetch('/create-pr', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, repo, path, code })
-        });
 
-        const data = await response.json();
-        if (data.success) {
-            alert(`✅ Pull Request created successfully!\n${data.prUrl}`);
-        } else {
-            alert(`❌ Failed to create PR: ${data.error}`);
+        // ==========================================
+        // STEP 1
+        // Get repository information
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.style.color =
+                '#00f2fe';
+
+            statusDiv.textContent =
+                '1/5 Fetching GitHub repository information...';
         }
+
+
+        const repoRes =
+            await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`,
+                {
+                    method: 'GET',
+                    headers
+                }
+            );
+
+
+        const repoData =
+            await repoRes.json();
+
+
+        if (!repoRes.ok) {
+
+            throw new Error(
+                repoData.message ||
+                `GitHub repository error (${repoRes.status})`
+            );
+        }
+
+
+        const defaultBranch =
+            repoData.default_branch || 'main';
+
+
+        // ==========================================
+        // STEP 2
+        // Get default branch SHA
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.textContent =
+                '2/5 Fetching default branch information...';
+        }
+
+
+        const refRes =
+            await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/ref/heads/${encodeURIComponent(defaultBranch)}`,
+                {
+                    method: 'GET',
+                    headers
+                }
+            );
+
+
+        const refData =
+            await refRes.json();
+
+
+        if (!refRes.ok) {
+
+            throw new Error(
+                refData.message ||
+                `Unable to fetch branch (${refRes.status})`
+            );
+        }
+
+
+        const baseSha =
+            refData.object?.sha;
+
+
+        if (!baseSha) {
+
+            throw new Error(
+                'Could not find the default branch SHA.'
+            );
+        }
+
+
+        // ==========================================
+        // STEP 3
+        // Create new branch
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.textContent =
+                '3/5 Creating new CodeMorph AI branch...';
+        }
+
+
+        const branchRes =
+            await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/refs`,
+                {
+                    method: 'POST',
+                    headers,
+
+                    body: JSON.stringify({
+
+                        ref:
+                            `refs/heads/${newBranchName}`,
+
+                        sha:
+                            baseSha
+                    })
+                }
+            );
+
+
+        const branchData =
+            await branchRes.json();
+
+
+        if (!branchRes.ok) {
+
+            throw new Error(
+                branchData.message ||
+                `Unable to create branch (${branchRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // STEP 4
+        // Commit translated code
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.textContent =
+                '4/5 Committing translated code...';
+        }
+
+
+        const encodedContent =
+            encodeBase64(content);
+
+
+        const encodedPath =
+            filePath
+                .split('/')
+                .map(part =>
+                    encodeURIComponent(part)
+                )
+                .join('/');
+
+
+        const fileUrl =
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodedPath}`;
+
+
+        // ------------------------------------------
+        // Check whether file already exists
+        // ------------------------------------------
+
+        const existingFileRes =
+            await fetch(
+                `${fileUrl}?ref=${encodeURIComponent(newBranchName)}`,
+                {
+                    method: 'GET',
+                    headers
+                }
+            );
+
+
+        let existingFileSha = null;
+
+
+        if (existingFileRes.ok) {
+
+            const existingFileData =
+                await existingFileRes.json();
+
+            existingFileSha =
+                existingFileData.sha || null;
+        }
+
+
+        const commitBody = {
+
+            message:
+                'feat: Add CodeMorph AI translated code',
+
+            content:
+                encodedContent,
+
+            branch:
+                newBranchName
+        };
+
+
+        // GitHub requires SHA when updating
+        // an existing file
+
+        if (existingFileSha) {
+
+            commitBody.sha =
+                existingFileSha;
+        }
+
+
+        const commitRes =
+            await fetch(
+                fileUrl,
+                {
+                    method: 'PUT',
+
+                    headers,
+
+                    body:
+                        JSON.stringify(
+                            commitBody
+                        )
+                }
+            );
+
+
+        const commitData =
+            await commitRes.json();
+
+
+        if (!commitRes.ok) {
+
+            throw new Error(
+                commitData.message ||
+                `Unable to commit file (${commitRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // STEP 5
+        // Create Pull Request
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.textContent =
+                '5/5 Opening Pull Request...';
+        }
+
+
+        const prRes =
+            await fetch(
+                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/pulls`,
+                {
+                    method: 'POST',
+
+                    headers,
+
+                    body: JSON.stringify({
+
+                        title:
+                            '🤖 CodeMorph AI: Converted Code Integration',
+
+                        head:
+                            newBranchName,
+
+                        base:
+                            defaultBranch,
+
+                        body:
+                            'This PR contains automatically translated code generated by **CodeMorph AI**.'
+                    })
+                }
+            );
+
+
+        const prData =
+            await prRes.json();
+
+
+        if (!prRes.ok) {
+
+            throw new Error(
+                prData.message ||
+                `Unable to create Pull Request (${prRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
+        if (statusDiv) {
+
+            statusDiv.style.color =
+                '#00ff66';
+
+            statusDiv.innerHTML = `
+                ✅ Pull Request Created Successfully!<br>
+
+                <a
+                    href="${prData.html_url}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="color:#00f2fe;"
+                >
+                    View PR #${prData.number}
+                </a>
+            `;
+        }
+
+
+        console.log(
+            '✅ GitHub Pull Request created:',
+            prData.html_url
+        );
+
+
     } catch (err) {
-        alert("❌ Error connecting to server.");
+
+        console.error(
+            '❌ GitHub Export Error:',
+            err
+        );
+
+
+        if (statusDiv) {
+
+            statusDiv.style.color =
+                '#ff4d4d';
+
+            statusDiv.textContent =
+                '❌ GitHub Export Failed: ' +
+                err.message;
+
+        } else {
+
+            alert(
+                '❌ GitHub Export Failed:\n' +
+                err.message
+            );
+        }
     }
 }
+
+
+/* ==========================================
+   CODEMORPH SCRIPT LOADED
+========================================== */
+
+console.log(
+    '🚀 CodeMorph AI GitHub Export Loaded Successfully'
+);
+
 </script>
-<button id="btnCreatePR" class="btn btn-primary" onclick="createGitHubPR()">
-  🚀 Create GitHub Pull Request
-</button>
 </body>
 
 </html>

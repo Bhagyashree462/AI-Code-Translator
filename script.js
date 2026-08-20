@@ -683,87 +683,316 @@ async function runSandboxCode() {
         }
     }
 }
-
 /* ==========================================
    GITHUB EXPORT FUNCTION
 ========================================== */
 
 async function exportToGitHub() {
-    const token = document.getElementById('githubToken')?.value;
-    const repo = document.getElementById('githubRepo')?.value;
-    const filePath = document.getElementById('githubFilePath')?.value;
-    const content = document.getElementById('sandboxCode')?.value;
+    const token = document.getElementById('githubToken')?.value.trim();
+    const repo = document.getElementById('githubRepo')?.value.trim();
+    const filePath = document.getElementById('githubFilePath')?.value.trim();
+
+    // Your translated code is displayed inside #result
+    const resultElement = document.getElementById('result');
+    const content = resultElement?.textContent?.trim();
+
     const statusDiv = document.getElementById('githubStatus');
 
-    if (!token || !repo || !filePath || !content) {
+    // ------------------------------------------
+    // Validate GitHub fields
+    // ------------------------------------------
+    if (!token || !repo || !filePath) {
         alert("Please fill in all GitHub export fields!");
         return;
     }
 
-    const [owner, repoName] = repo.split('/');
+    // ------------------------------------------
+    // Validate translated code
+    // ------------------------------------------
+    if (!content) {
+        alert("No translated code available. Please translate your code first!");
+        return;
+    }
+
+    // ------------------------------------------
+    // Validate repository format
+    // Example: Bhagyashree462/AI-Code-Translator
+    // ------------------------------------------
+    const repoParts = repo.split('/');
+
+    if (repoParts.length !== 2 || !repoParts[0] || !repoParts[1]) {
+        alert("Please enter the GitHub repository in this format:\nOwner/Repository");
+        return;
+    }
+
+    const owner = repoParts[0].trim();
+    const repoName = repoParts[1].trim();
+
+    // ------------------------------------------
+    // Create new branch name
+    // ------------------------------------------
     const newBranchName = `codemorph-translate-${Date.now()}`;
+
+    // ------------------------------------------
+    // GitHub API headers
+    // ------------------------------------------
     const headers = {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
     };
 
+    // ------------------------------------------
+    // Unicode-safe Base64 encoder
+    // ------------------------------------------
+    function encodeBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+
+        let binary = '';
+
+        const chunkSize = 0x8000;
+
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode(...chunk);
+        }
+
+        return btoa(binary);
+    }
+
     try {
+
+        // ==========================================
+        // STEP 1: Get repository information
+        // ==========================================
+
         if (statusDiv) {
             statusDiv.style.color = '#00f2fe';
-            statusDiv.textContent = "1/4 Fetching default branch info...";
+            statusDiv.textContent =
+                "1/5 Fetching GitHub repository information...";
         }
 
-        const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers });
+        const repoRes = await fetch(
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`,
+            {
+                method: 'GET',
+                headers
+            }
+        );
+
         const repoData = await repoRes.json();
+
+        if (!repoRes.ok) {
+            throw new Error(
+                repoData.message ||
+                `GitHub repository error (${repoRes.status})`
+            );
+        }
+
         const defaultBranch = repoData.default_branch || 'main';
 
-        const refRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}/git/ref/heads/${defaultBranch}`, { headers });
+
+        // ==========================================
+        // STEP 2: Get default branch SHA
+        // ==========================================
+
+        if (statusDiv) {
+            statusDiv.textContent =
+                "2/5 Fetching default branch information...";
+        }
+
+        const refRes = await fetch(
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/ref/heads/${encodeURIComponent(defaultBranch)}`,
+            {
+                method: 'GET',
+                headers
+            }
+        );
+
         const refData = await refRes.json();
-        const baseSha = refData.object.sha;
 
-        if (statusDiv) statusDiv.textContent = "2/4 Creating new feature branch...";
-        await fetch(`https://api.github.com/repos/${owner}/${repoName}/git/refs`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ ref: `refs/heads/${newBranchName}`, sha: baseSha })
-        });
+        if (!refRes.ok) {
+            throw new Error(
+                refData.message ||
+                `Unable to fetch branch information (${refRes.status})`
+            );
+        }
 
-        if (statusDiv) statusDiv.textContent = "3/4 Committing translated code...";
-        await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/${filePath}`, {
-            method: 'PUT',
-            headers,
-            body: JSON.stringify({
-                message: 'feat: Add CodeMorph AI translated code',
-                content: btoa(content),
-                branch: newBranchName
-            })
-        });
+        const baseSha = refData.object?.sha;
 
-        if (statusDiv) statusDiv.textContent = "4/4 Opening Pull Request...";
-        const prRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}/pulls`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-                title: '🤖 CodeMorph AI: Converted Code Integration',
-                head: newBranchName,
-                base: defaultBranch,
-                body: 'This PR contains automatically translated code generated by **CodeMorph AI**.'
-            })
-        });
+        if (!baseSha) {
+            throw new Error("Could not find the default branch SHA.");
+        }
+
+
+        // ==========================================
+        // STEP 3: Create new branch
+        // ==========================================
+
+        if (statusDiv) {
+            statusDiv.textContent =
+                "3/5 Creating new CodeMorph AI branch...";
+        }
+
+        const branchRes = await fetch(
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/refs`,
+            {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    ref: `refs/heads/${newBranchName}`,
+                    sha: baseSha
+                })
+            }
+        );
+
+        const branchData = await branchRes.json();
+
+        if (!branchRes.ok) {
+            throw new Error(
+                branchData.message ||
+                `Unable to create branch (${branchRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // STEP 4: Commit translated code
+        // ==========================================
+
+        if (statusDiv) {
+            statusDiv.textContent =
+                "4/5 Committing translated code...";
+        }
+
+        const encodedContent = encodeBase64(content);
+
+        const fileUrl =
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${filePath
+                .split('/')
+                .map(part => encodeURIComponent(part))
+                .join('/')}`;
+
+        // Check whether the file already exists
+        const existingFileRes = await fetch(
+            `${fileUrl}?ref=${encodeURIComponent(newBranchName)}`,
+            {
+                method: 'GET',
+                headers
+            }
+        );
+
+        let existingFileSha = null;
+
+        if (existingFileRes.ok) {
+            const existingFileData = await existingFileRes.json();
+            existingFileSha = existingFileData.sha || null;
+        }
+
+        const commitBody = {
+            message: 'feat: Add CodeMorph AI translated code',
+            content: encodedContent,
+            branch: newBranchName
+        };
+
+        // If file already exists, GitHub requires its SHA
+        if (existingFileSha) {
+            commitBody.sha = existingFileSha;
+        }
+
+        const commitRes = await fetch(
+            fileUrl,
+            {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(commitBody)
+            }
+        );
+
+        const commitData = await commitRes.json();
+
+        if (!commitRes.ok) {
+            throw new Error(
+                commitData.message ||
+                `Unable to commit translated code (${commitRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // STEP 5: Create Pull Request
+        // ==========================================
+
+        if (statusDiv) {
+            statusDiv.textContent =
+                "5/5 Opening Pull Request...";
+        }
+
+        const prRes = await fetch(
+            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/pulls`,
+            {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    title: '🤖 CodeMorph AI: Converted Code Integration',
+                    head: newBranchName,
+                    base: defaultBranch,
+                    body:
+                        'This PR contains automatically translated code generated by **CodeMorph AI**.'
+                })
+            }
+        );
 
         const prData = await prRes.json();
+
+        if (!prRes.ok) {
+            throw new Error(
+                prData.message ||
+                `Unable to create Pull Request (${prRes.status})`
+            );
+        }
+
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
         if (statusDiv) {
             statusDiv.style.color = '#00ff66';
-            statusDiv.innerHTML = `✅ Pull Request Created! <a href="${prData.html_url}" target="_blank" style="color:#00f2fe;">View PR #${prData.number}</a>`;
+
+            statusDiv.innerHTML = `
+                ✅ Pull Request Created Successfully!<br>
+                <a
+                    href="${prData.html_url}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="color:#00f2fe;"
+                >
+                    View PR #${prData.number}
+                </a>
+            `;
         }
+
+        console.log("✅ GitHub Pull Request created:", prData.html_url);
+
     } catch (err) {
-        console.error(err);
+
+        console.error("❌ GitHub Export Error:", err);
+
         if (statusDiv) {
             statusDiv.style.color = '#ff4d4d';
-            statusDiv.textContent = "❌ GitHub Export Failed: " + err.message;
+            statusDiv.textContent =
+                "❌ GitHub Export Failed: " + err.message;
+        } else {
+            alert("❌ GitHub Export Failed:\n" + err.message);
         }
     }
 }
+
+
+/* ==========================================
+   SCRIPT LOADED
+========================================== */
 
 console.log("🚀 CodeMorph AI Script Loaded Successfully");
