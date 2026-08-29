@@ -766,3 +766,185 @@ body {
   align-items: center;
   gap: 6px;
 }
+
+/* =========================================================
+   FINAL DASHBOARD WIDTH FIX
+   HTML CHANGES NOT REQUIRED
+========================================================= */
+
+:root {
+    --dashboard-width: 1200px;
+}
+
+/* Keep the main top dashboard centered */
+.container {
+    width: 95% !important;
+    max-width: var(--dashboard-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* =========================================================
+   BOTTOM SECTIONS
+   Make them exactly the same width as the top dashboard
+========================================================= */
+
+.multi-file-converter,
+.file-converter,
+.live-code-sandbox,
+.sandbox-section,
+.terminal-section,
+.terminal-output,
+.github-section,
+.github-pull-request,
+#multiFileConverter,
+#liveCodeSandbox,
+#terminalOutput,
+#githubSection {
+    width: 95% !important;
+    max-width: var(--dashboard-width) !important;
+
+    margin-left: auto !important;
+    margin-right: auto !important;
+
+    box-sizing: border-box !important;
+
+    position: relative;
+    z-index: 10;
+}
+
+/* =========================================================
+   BOTTOM SECTION CONTENT
+========================================================= */
+
+.multi-file-converter > *,
+.file-converter > *,
+.live-code-sandbox > *,
+.sandbox-section > *,
+.terminal-section > *,
+.terminal-output > *,
+.github-section > *,
+.github-pull-request > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   TEXTAREAS / EDITORS
+========================================================= */
+
+.multi-file-converter textarea,
+.file-converter textarea,
+.live-code-sandbox textarea,
+.sandbox-section textarea,
+.terminal-section textarea,
+.terminal-output textarea,
+.github-section textarea,
+.github-pull-request textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   SELECT BOXES
+========================================================= */
+
+.multi-file-converter select,
+.file-converter select,
+.live-code-sandbox select,
+.sandbox-section select,
+.terminal-section select,
+.terminal-output select,
+.github-section select,
+.github-pull-request select {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.multi-file-converter input,
+.file-converter input,
+.live-code-sandbox input,
+.sandbox-section input,
+.terminal-section input,
+.terminal-output input,
+.github-section input,
+.github-pull-request input {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   PRE / CODE
+========================================================= */
+
+.multi-file-converter pre,
+.file-converter pre,
+.live-code-sandbox pre,
+.sandbox-section pre,
+.terminal-section pre,
+.terminal-output pre,
+.github-section pre,
+.github-pull-request pre {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+.multi-file-converter table,
+.file-converter table,
+.live-code-sandbox table,
+.sandbox-section table,
+.terminal-section table,
+.terminal-output table,
+.github-section table,
+.github-pull-request table {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   REMOVE FULL SCREEN WIDTH
+========================================================= */
+
+.multi-file-converter,
+.file-converter,
+.live-code-sandbox,
+.sandbox-section,
+.terminal-section,
+.terminal-output,
+.github-section,
+.github-pull-request {
+    width: min(95%, 1200px) !important;
+    max-width: 1200px !important;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .container,
+    .multi-file-converter,
+    .file-converter,
+    .live-code-sandbox,
+    .sandbox-section,
+    .terminal-section,
+    .terminal-output,
+    .github-section,
+    .github-pull-request {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
