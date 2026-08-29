@@ -1,1328 +1,1308 @@
+### `dashboard.html`
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>CodeMorph AI - Multi Language Code Translator</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
 
-<title>CodeMorph AI - Multi Language Code Translator</title>
-
-
-<link rel="stylesheet" href="style.css">
-
-
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css">
-
-
+    <!-- Prism.js Theme -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css"
+        crossorigin="anonymous"
+    >
 </head>
-
 
 <body>
 
+    <!-- =====================================================
+         MAIN DASHBOARD CONTAINER
+    ====================================================== -->
 
-<div class="container">
+    <div class="container">
 
+        <!-- =================================================
+             HEADER
+        ================================================== -->
 
+        <header class="ai-header">
 
-<!-- ===========================
-     AI HEADER
-=========================== -->
+            <div class="logo">
+                🤖 CodeMorph AI
+            </div>
 
+            <div class="ai-status">
+                <span class="status-dot"></span>
+                AI Engine Online
+            </div>
 
-<header class="ai-header">
+            <p class="header-description">
+                Transform code between programming languages using Artificial Intelligence
+            </p>
 
+        </header>
 
-<div class="logo">
 
-🤖 CodeMorph AI
+        <!-- =================================================
+             FEATURES
+        ================================================== -->
 
-</div>
+        <section class="feature-grid">
 
+            <div class="feature-card">
 
-<div class="ai-status">
+                <div class="feature-icon">
+                    ⚡
+                </div>
 
-<span></span>`
+                <h3>
+                    Smart Translation
+                </h3>
 
-AI Engine Online
+                <p>
+                    Convert code instantly between multiple programming languages.
+                </p>
 
-</div>
+            </div>
 
 
-<p>
+            <div class="feature-card">
 
-Transform code between programming languages using Artificial Intelligence
+                <div class="feature-icon">
+                    🔍
+                </div>
 
-</p>
+                <h3>
+                    Error Detection
+                </h3>
 
-</header>
-<!-- ===========================
-     AI FEATURES
-=========================== -->
+                <p>
+                    Detect and fix programming errors automatically.
+                </p>
 
+            </div>
 
-<div class="feature-grid">
 
+            <div class="feature-card">
 
-<div class="feature-card">
+                <div class="feature-icon">
+                    💡
+                </div>
 
-⚡
+                <h3>
+                    AI Explanation
+                </h3>
 
-<h3>Smart Translation</h3>
+                <p>
+                    Understand your code with intelligent AI explanations.
+                </p>
 
-<p>
-Convert code instantly between multiple languages
-</p>
+            </div>
 
-</div>
+        </section>
 
 
+        <!-- =================================================
+             TRANSLATOR WORKSPACE
+        ================================================== -->
 
-<div class="feature-card">
+        <section class="translator-panel">
 
-🔍
+            <div class="section-heading">
 
-<h3>Error Detection</h3>
+                <h2>
+                    🚀 Code Translation Workspace
+                </h2>
 
-<p>
-Detect and fix programming errors automatically
-</p>
+                <p>
+                    Write your source code and select the target programming language.
+                </p>
 
-</div>
+            </div>
 
 
+            <div class="translator-grid">
 
-<div class="feature-card">
+                <!-- SOURCE CODE -->
 
-💡
+                <div class="editor glass-card">
 
-<h3>AI Explanation</h3>
+                    <div class="editor-header">
 
-<p>
-Understand every line of your code
-</p>
+                        <div class="window-controls">
 
-</div>
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
 
+                        </div>
 
-</div>
+                        <span class="editor-title">
+                            SOURCE CODE EDITOR
+                        </span>
 
+                    </div>
 
 
+                    <label for="sourceCode">
+                        💻 Source Code
+                    </label>
 
 
-<!-- ===========================
-     CODE TRANSLATOR PANEL
-=========================== -->
+                    <textarea
+                        id="sourceCode"
+                        oninput="detectLanguage()"
+                        placeholder="Write or paste your code here..."
+                    ></textarea>
 
+                </div>
 
-<section class="translator-panel">
 
+                <!-- TARGET LANGUAGE -->
 
-<h2>
+                <div class="target-box glass-card">
 
-🚀 Code Translation Workspace
+                    <label for="targetLang">
+                        🎯 Target Language
+                    </label>
 
-</h2>
+                    <select id="targetLang">
 
+                        <option value="python">
+                            Python
+                        </option>
 
+                        <option value="java">
+                            Java
+                        </option>
 
+                        <option value="javascript">
+                            JavaScript
+                        </option>
 
-<div class="input-group">
+                        <option value="c">
+                            C
+                        </option>
 
+                        <option value="cpp">
+                            C++
+                        </option>
 
+                        <option value="csharp">
+                            C#
+                        </option>
 
-<!-- SOURCE -->
+                        <option value="css">
+                            CSS
+                        </option>
 
+                    </select>
 
-<div class="editor glass-card">
 
+                    <div class="language-status">
 
-<div class="editor-header">
+                        <h3>
+                            🌐 Detection
+                        </h3>
 
-<span class="dot red"></span>
-<span class="dot yellow"></span>
-<span class="dot green"></span>
+                        <span id="detectedLang">
+                            None
+                        </span>
 
+                    </div>
 
-Source Code Editor
+                </div>
 
-</div>
+            </div>
 
+        </section>
 
 
-<label>
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
 
-💻 Source Code
+        <div class="buttons">
 
-</label>
+            <button
+                type="button"
+                class="btn-translate"
+                onclick="translateCode()"
+            >
+                🔄 Translate
+            </button>
 
 
-<textarea
+            <button
+                type="button"
+                class="btn-analyze"
+                onclick="analyzeCode()"
+            >
+                🔍 Analyze
+            </button>
 
-id="sourceCode"
 
-oninput="detectLanguage()"
+            <button
+                type="button"
+                class="btn-copy"
+                onclick="copyCode()"
+            >
+                📋 Copy
+            </button>
 
-placeholder="Write or paste your code here...">
 
-</textarea>
+            <button
+                type="button"
+                class="btn-clear"
+                onclick="clearAll()"
+            >
+                🗑 Clear
+            </button>
 
 
+            <button
+                type="button"
+                class="btn-explain"
+                onclick="explainCode()"
+            >
+                💡 Explain
+            </button>
 
-</div>
+        </div>
 
 
+        <!-- =================================================
+             ERROR INTELLIGENCE
+        ================================================== -->
 
+        <section class="output-card">
 
+            <div class="output-header">
 
+                <h2>
+                    🚨 Error Intelligence
+                </h2>
 
+            </div>
 
-<!-- TARGET -->
+            <pre><code id="errorOutput">No errors detected...</code></pre>
 
+        </section>
 
-<div class="target-box glass-card">
 
+        <!-- =================================================
+             AI GENERATED FIX
+        ================================================== -->
 
-<label>
+        <section class="output-card">
 
-🎯 Target Language
+            <div class="output-header">
 
-</label>
-<select id="targetLang">
-<option value="python">
-Python
-</option>
+                <h2>
+                    🛠 AI Generated Fix
+                </h2>
 
+            </div>
 
-<option value="java">
-Java
-</option>
+            <pre><code id="fixedCode">Corrected code will appear here...</code></pre>
 
+        </section>
 
-<option value="javascript">
 
-JavaScript
+        <!-- =================================================
+             TRANSLATED CODE
+        ================================================== -->
 
-</option>
+        <section class="output-card">
 
+            <div class="output-header">
 
-<option value="c">
+                <h2>
+                    💻 Converted Code
+                </h2>
 
-C
+            </div>
 
-</option>
 
+            <pre>
+<code
+    id="result"
+    class="language-java"
+>// Translation output...</code>
+            </pre>
 
-<option value="cpp">
 
-C++
+            <div class="output-actions">
 
-</option>
+                <button
+                    type="button"
+                    class="btn-download"
+                    onclick="downloadCode()"
+                >
+                    📥 Download Code
+                </button>
 
+            </div>
 
-<option value="csharp">
+        </section>
 
-C#
 
-</option>
+        <!-- =================================================
+             AI EXPLANATION
+        ================================================== -->
 
+        <section class="output-card">
 
-<option value="css">
+            <div class="output-header">
 
-CSS
+                <h2>
+                    🤖 AI Code Explanation
+                </h2>
 
-</option>
+            </div>
 
+            <pre><code id="explanation">AI explanation will appear here...</code></pre>
 
+        </section>
 
-</select>
 
+        <!-- =================================================
+             AI CHAT
+        ================================================== -->
 
+        <section class="chat-section">
 
+            <div class="section-heading">
 
-<div class="language-status">
+                <h2>
+                    💬 AI Programming Assistant
+                </h2>
 
+                <p>
+                    Ask questions about programming or your translated code.
+                </p>
 
-<h3>
+            </div>
 
-🌐 Detection
 
-</h3>
+            <div class="chat-container">
 
+                <div
+                    id="chatMessages"
+                    class="chat-messages"
+                >
 
-<span id="detectedLang">
+                    <div class="chat-message bot-message">
 
-None
+                        <strong>
+                            🤖 AI:
+                        </strong>
 
-</span>
+                        <span>
+                            Hello Developer 👋<br>
+                            Ask me anything about programming.
+                        </span>
 
+                    </div>
 
-</div>
+                </div>
 
 
+                <div class="chat-input-box">
 
-</div>
+                    <textarea
+                        id="chatInput"
+                        placeholder="Ask AI about your code..."
+                    ></textarea>
 
 
+                    <div class="chat-buttons">
 
-</div>
+                        <button
+                            type="button"
+                            id="sendChatBtn"
+                            class="chat-send-btn"
+                            onclick="sendChatMessage()"
+                        >
+                            📤 Send
+                        </button>
 
 
-</section>
+                        <button
+                            type="button"
+                            class="voice-btn"
+                            onclick="startVoice()"
+                        >
+                            🎤 Voice AI
+                        </button>
 
+                    </div>
 
+                </div>
 
+            </div>
 
+        </section>
 
-<!-- ===========================
-     ACTION BUTTONS
-=========================== -->
 
+        <!-- =================================================
+             MULTI-FILE CONVERTER
+        ================================================== -->
 
-<div class="buttons">
+        <section class="card converter-section">
 
+            <div class="section-heading">
 
-<button 
-class="btn-translate"
-onclick="translateCode()">
+                <h2>
+                    📁 Multi-File / Repository Converter
+                </h2>
 
-🔄 Translate
+                <p>
+                    Upload a project ZIP or use your repository workflow to translate an entire project structure.
+                </p>
 
-</button>
+            </div>
 
 
+            <div class="form-field">
 
-<button
-class="btn-analyze"
-onclick="analyzeCode()">
+                <label for="zipFileInput">
+                    Upload ZIP File
+                </label>
 
-🔍 Analyze
+                <input
+                    type="file"
+                    id="zipFileInput"
+                    accept=".zip"
+                >
 
-</button>
+            </div>
 
 
+            <div class="form-field">
 
-<button
-class="btn-copy"
-onclick="copyCode()">
+                <label for="targetLanguageSelect">
+                    Target Language
+                </label>
 
-📋 Copy
+                <select id="targetLanguageSelect">
 
-</button>
+                    <option value="python">
+                        Python
+                    </option>
 
+                    <option value="javascript">
+                        JavaScript
+                    </option>
 
-<button
-class="btn-clear"
-onclick="clearAll()">
+                    <option value="typescript">
+                        TypeScript
+                    </option>
 
-🗑 Clear
+                </select>
 
-</button>
+            </div>
 
 
+            <button
+                type="button"
+                id="convertZipBtn"
+                class="btn-primary"
+                onclick="processZipUpload()"
+            >
+                ⚡ Translate Project ZIP
+            </button>
 
-<button
-class="btn-explain"
-onclick="explainCode()">
 
-💡 Explain
+            <div
+                id="conversionStatus"
+                class="conversion-status"
+            ></div>
 
-</button>
+        </section>
 
 
-</div>
+        <!-- =================================================
+             LIVE CODE SANDBOX
+        ================================================== -->
 
-<!-- ===========================
-     ERROR ANALYSIS
-=========================== -->
+        <section class="sandbox-container">
 
+            <div class="section-heading">
 
-<section class="output-card">
+                <h2>
+                    🧪 Live Code Sandbox
+                </h2>
 
+                <p>
+                    Run and verify translated code snippets directly in your browser.
+                </p>
 
-<h2>
+            </div>
 
-🚨 Error Intelligence
 
-</h2>
+            <div class="form-field">
 
+                <label for="sandboxLanguageSelect">
+                    Select Language
+                </label>
 
-<pre>
+                <select
+                    id="sandboxLanguageSelect"
+                    class="form-select"
+                >
 
-<code id="errorOutput">
+                    <option value="javascript">
+                        JavaScript
+                    </option>
 
-No errors detected...
+                    <option value="python">
+                        Python
+                    </option>
 
-</code>
+                    <option value="typescript">
+                        TypeScript
+                    </option>
 
-</pre>
+                    <option value="java">
+                        Java
+                    </option>
 
+                    <option value="cpp">
+                        C++
+                    </option>
 
-</section>
-<!-- ===========================
-     FIXED CODE
-=========================== -->
+                    <option value="csharp">
+                        C# (.NET)
+                    </option>
 
+                </select>
 
-<section class="output-card">
+            </div>
 
 
-<h2>
+            <textarea
+                id="sandboxCodeInput"
+                placeholder="Paste or translate code here..."
+            ></textarea>
 
-🛠 AI Generated Fix
 
-</h2>
+            <button
+                type="button"
+                id="runCodeBtn"
+                class="btn-primary"
+            >
+                ▶ Run Code
+            </button>
 
 
-<pre>
+            <h4 class="terminal-title">
+                Terminal Output
+            </h4>
 
-<code id="fixedCode">
 
-Corrected code will appear here...
+            <pre id="terminalOutput">Execution finished with no output.</pre>
 
-</code>
+        </section>
 
-</pre>
 
+        <!-- =================================================
+             GITHUB PULL REQUEST
+        ================================================== -->
 
-</section>
+        <section class="card github-section">
 
+            <div class="section-heading">
 
+                <h2>
+                    🐙 Push to GitHub Pull Request
+                </h2>
 
+                <p>
+                    Export translated code directly as a new Pull Request on your GitHub repository.
+                </p>
 
+            </div>
 
 
+            <div class="form-field">
 
-<!-- ===========================
-     TRANSLATED CODE
-=========================== -->
+                <label for="githubToken">
+                    GitHub Personal Access Token
+                </label>
 
+                <input
+                    type="password"
+                    id="githubToken"
+                    placeholder="ghp_xxxxxxxxxxxx"
+                    autocomplete="off"
+                >
 
-<section class="output-card">
+                <small>
+                    Use a token with the required repository permissions.
+                </small>
 
+            </div>
 
-<h2>
 
-💻 Converted Code
+            <div class="form-field">
 
-</h2>
+                <label for="githubRepo">
+                    Repository
+                </label>
 
+                <input
+                    type="text"
+                    id="githubRepo"
+                    placeholder="username/repository-name"
+                >
 
-<pre>
+            </div>
 
-<code 
 
-id="result"
+            <div class="form-field">
 
-class="language-java">
+                <label for="githubFilePath">
+                    File Target Path
+                </label>
 
-// Translation output...
+                <input
+                    type="text"
+                    id="githubFilePath"
+                    placeholder="src/translated_code.py"
+                >
 
-</code>
+            </div>
 
-</pre>
 
+            <button
+                type="button"
+                id="btnCreatePR"
+                class="btn-glow"
+                onclick="exportToGitHub()"
+            >
+                🚀 Create GitHub Pull Request
+            </button>
 
 
-<button
+            <div
+                id="githubStatus"
+                class="github-status"
+            ></div>
 
-class="btn-download"
+        </section>
 
-onclick="downloadCode()">
 
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
 
-📥 Download Code
+        <footer>
 
+            <p>
+                ⚡ Powered by AI | CodeMorph AI Translator
+            </p>
 
-</button>
+        </footer>
 
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<!-- ===========================
-     AI EXPLANATION
-=========================== -->
-
-
-<section class="output-card">
-
-
-<h2>
-
-🤖 AI Code Explanation
-
-</h2>
-
-
-<pre>
-
-<code id="explanation">
-
-AI explanation will appear here...
-
-</code>
-
-</pre>
-
-
-</section>
-
-
-
-
-
-
-
-
-<!-- ===========================
-     AI CHAT
-=========================== -->
-
-
-<section class="chat-section">
-
-
-<h2>
-
-💬 AI Programming Assistant
-
-</h2>
-
-
-
-<div class="chat-container">
-
-
-<div 
-
-id="chatMessages"
-
-class="chat-messages">
-
-
-
-<div class="chat-message bot-message">
-
-
-<strong>
-
-🤖 AI:
-
-</strong>
-
-
-Hello Developer 👋
-
-Ask me anything about programming.
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="chat-input-box">
-
-
-<textarea
-
-id="chatInput"
-
-placeholder="Ask AI about your code...">
-
-</textarea>
-
-
-
-<button
-
-id="sendChatBtn"
-
-onclick="sendChatMessage()">
-
-📤 Send
-
-</button>
-<button 
-class="voice-btn"
-onclick="startVoice()">
-
-🎤 Voice AI
-
-</button>
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-<!-- ===========================
-     FOOTER
-=========================== -->
-
-
-<footer>
-
-
-<p>
-
-⚡ Powered by AI | CodeMorph AI Translator
-
-</p>
-<div class="ai-robot">
-
-<div class="robot-face">
-
-🤖
-
-</div>
-
-
-<div class="robot-message">
-
-AI Ready...
-
-</div>
-
-
-</div>
-
-
-</footer>
-
-
-
-
-</div>
-
-
-
-
-<!-- Syntax Highlighting -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" crossorigin="anonymous">
-
-<!-- Syntax Highlighting Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js" crossorigin="anonymous"></script>
-
-<!-- 3D Canvas Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
-<script src="script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<!-- Add JSZip and FileSaver CDN libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-<script src="three-background.js"></script>
-
-
-<script>
-  // Route Guard: Redirect unauthorized users back to Registration/Login
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  
-  if (!isAuthenticated) {
-    alert('Please register and log in to access the AI Translator.');
-    window.location.href = 'index.html'; // Direct back to Registration
-  }
-</script>
-
-<!-- Multi-File Converter Section -->
-<div class="card converter-section">
-  <h3>📁 Multi-File / Repository Converter</h3>
-  <p>Upload a project .zip or paste a GitHub repo to translate an entire project structure.</p>
-
-  <div class="input-group">
-    <label>Upload Zip File:</label>
-    <input type="file" id="zipFileInput" accept=".zip" />
-  </div>
-
-  <div class="input-group" style="margin-top: 15px;">
-    <label>Target Language:</label>
-    <select id="targetLanguageSelect">
-      <option value="python">Python</option>
-      <option value="javascript">JavaScript</option>
-      <option value="typescript">TypeScript</option>
-    </select>
-  </div>
-
-  <button id="convertZipBtn" class="btn-primary" style="margin-top: 15px;" onclick="processZipUpload()">
-    ⚡ Translate Project Zip
-  </button>
-  
-  <div id="conversionStatus" style="margin-top: 10px; color: #00f2fe;"></div>
-</div>
-<!-- Live Code Sandbox Section -->
-<!-- Live Code Sandbox Section -->
-<div class="sandbox-container">
-  <h3>🧪 Live Code Sandbox</h3>
-  <p>Run and verify translated code snippets directly in your browser.</p>
-
-  <!-- Expanded Language Selection Menu -->
-  <select id="sandboxLanguageSelect" class="form-select">
-  <option value="javascript">JavaScript (Node.js / Browser)</option>
-  <option value="python">Python (Pyodide WebAssembly)</option>
-  <option value="typescript">TypeScript</option>
-  <option value="java">Java</option>
-  <option value="cpp">C++</option>
-  <option value="csharp">C# (.NET)</option>
-</select>
-
-  <button id="runCodeBtn" class="btn btn-primary mt-2">▶ Run Code</button>
-
-  <textarea id="sandboxCodeInput" placeholder="Paste or translate code here..."></textarea>
-
-  <h4>Terminal Output:</h4>
-  <pre id="terminalOutput">Execution finished with no output.</pre>
-</div>
-
-<!-- Load Pyodide CDN for In-Browser Python Execution -->
-<script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-<!-- ==========================================
-     GITHUB PULL REQUEST EXPORT
-========================================== -->
-
-<div class="card github-section" style="margin-top: 20px;">
-
-    <h3>🐙 Push to GitHub Pull Request</h3>
-
-    <p>
-        Export translated code directly as a new PR
-        on your GitHub repository.
-    </p>
-
-    
-    <!-- GitHub Token -->
-    <div class="input-group">
-
-        <label for="githubToken">
-            GitHub Personal Access Token (repo scope):
-        </label>
-
-        <input
-            type="password"
-            id="githubToken"
-            placeholder="ghp_xxxxxxxxxxxx"
-            autocomplete="off"
-        />
 
     </div>
 
 
-    <!-- Repository -->
-    <div class="input-group" style="margin-top: 10px;">
+    <!-- =====================================================
+         FLOATING ROBOT
+    ====================================================== -->
 
-        <label for="githubRepo">
-            Repository (Owner/Repo):
-        </label>
+    <div class="ai-robot">
 
-        <input
-            type="text"
-            id="githubRepo"
-            placeholder="username/repository-name"
-        />
+        <div class="robot-face">
+            🤖
+        </div>
 
-    </div>
-
-
-    <!-- File Path -->
-    <div class="input-group" style="margin-top: 10px;">
-
-        <label for="githubFilePath">
-            File Target Path:
-        </label>
-
-        <input
-            type="text"
-            id="githubFilePath"
-            placeholder="src/translated_code.py"
-        />
+        <div class="robot-message">
+            AI Ready...
+        </div>
 
     </div>
 
 
-    <!-- Create PR Button -->
-    <button
-        type="button"
-        id="btnCreatePR"
-        class="btn-glow"
-        style="margin-top: 15px;"
-        onclick="exportToGitHub()"
-    >
-        🚀 Create GitHub Pull Request
-    </button>
+    <!-- =====================================================
+         PRISM.JS
+    ====================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"
+        crossorigin="anonymous"
+    ></script>
 
 
-    <!-- Status -->
-    <div
-        id="githubStatus"
-        style="
-            margin-top: 10px;
-            font-weight: 600;
-        "
-    ></div>
+    <!-- =====================================================
+         THREE.JS
+    ====================================================== -->
 
-</div>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+        crossorigin="anonymous"
+    ></script>
 
 
-<script>
+    <!-- =====================================================
+         ZIP / FILE SAVER
+    ====================================================== -->
 
-/* ==========================================
-   GITHUB EXPORT FUNCTION
-========================================== */
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+    ></script>
 
-async function exportToGitHub() {
-
-    // ------------------------------------------
-    // Get GitHub form values
-    // ------------------------------------------
-
-    const token =
-        document.getElementById('githubToken')?.value.trim();
-
-    const repo =
-        document.getElementById('githubRepo')?.value.trim();
-
-    const filePath =
-        document.getElementById('githubFilePath')?.value.trim();
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"
+    ></script>
 
 
-    // ------------------------------------------
-    // Get translated code
-    //
-    // Your translated code is inside:
-    // <code id="result"></code>
-    // ------------------------------------------
+    <!-- =====================================================
+         PYODIDE
+    ====================================================== -->
 
-    const resultElement =
-        document.getElementById('result');
-
-    const content =
-        resultElement?.textContent?.trim();
+    <script
+        src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"
+    ></script>
 
 
-    // ------------------------------------------
-    // Status element
-    // ------------------------------------------
+    <!-- =====================================================
+         YOUR EXISTING JAVASCRIPT
+    ====================================================== -->
 
-    const statusDiv =
-        document.getElementById('githubStatus');
+    <script src="script.js"></script>
 
-
-    // ------------------------------------------
-    // Validate GitHub fields
-    // ------------------------------------------
-
-    if (!token || !repo || !filePath) {
-
-        alert(
-            "Please fill in all GitHub export fields!"
-        );
-
-        return;
-    }
+    <script src="three-background.js"></script>
 
 
-    // ------------------------------------------
-    // Validate translated code
-    // ------------------------------------------
+    <!-- =====================================================
+         AUTHENTICATION GUARD
+    ====================================================== -->
 
-    if (!content) {
+    <script>
 
-        alert(
-            "No translated code available!\n\n" +
-            "Please translate your code first."
-        );
+        const isAuthenticated =
+            localStorage.getItem("isAuthenticated");
 
-        return;
-    }
+        if (!isAuthenticated) {
 
+            alert(
+                "Please register and log in to access the AI Translator."
+            );
 
-    // ------------------------------------------
-    // Validate repository format
-    //
-    // Example:
-    // Bhagyashree462/AI-Code-Translator
-    // ------------------------------------------
+            window.location.href = "index.html";
+        }
 
-    const repoParts = repo.split('/');
-
-    if (
-        repoParts.length !== 2 ||
-        !repoParts[0] ||
-        !repoParts[1]
-    ) {
-
-        alert(
-            "Invalid GitHub repository format.\n\n" +
-            "Use:\nOwner/Repository"
-        );
-
-        return;
-    }
+    </script>
 
 
-    const owner =
-        repoParts[0].trim();
+    <!-- =====================================================
+         GITHUB EXPORT
+    ====================================================== -->
 
-    const repoName =
-        repoParts[1].trim();
+    <script>
 
+        async function exportToGitHub() {
 
-    // ------------------------------------------
-    // Branch name
-    // ------------------------------------------
+            const token =
+                document.getElementById("githubToken")?.value.trim();
 
-    const newBranchName =
-        `codemorph-translate-${Date.now()}`;
+            const repo =
+                document.getElementById("githubRepo")?.value.trim();
 
+            const filePath =
+                document.getElementById("githubFilePath")?.value.trim();
 
-    // ------------------------------------------
-    // GitHub API headers
-    // ------------------------------------------
+            const resultElement =
+                document.getElementById("result");
 
-    const headers = {
+            const content =
+                resultElement?.textContent?.trim();
 
-        'Authorization': `Bearer ${token}`,
-
-        'Accept':
-            'application/vnd.github+json',
-
-        'Content-Type':
-            'application/json',
-
-        'X-GitHub-Api-Version':
-            '2022-11-28'
-    };
+            const statusDiv =
+                document.getElementById("githubStatus");
 
 
-    // ------------------------------------------
-    // Unicode-safe Base64 encoding
-    // ------------------------------------------
+            if (!token || !repo || !filePath) {
 
-    function encodeBase64(text) {
-
-        const bytes =
-            new TextEncoder().encode(text);
-
-        let binary = '';
-
-        const chunkSize = 0x8000;
-
-        for (
-            let i = 0;
-            i < bytes.length;
-            i += chunkSize
-        ) {
-
-            const chunk =
-                bytes.subarray(
-                    i,
-                    i + chunkSize
+                alert(
+                    "Please fill in all GitHub export fields!"
                 );
 
-            binary += String.fromCharCode(
-                ...chunk
-            );
-        }
-
-        return btoa(binary);
-    }
+                return;
+            }
 
 
-    try {
+            if (!content) {
 
-        // ==========================================
-        // STEP 1
-        // Get repository information
-        // ==========================================
+                alert(
+                    "No translated code available!\n\n" +
+                    "Please translate your code first."
+                );
 
-        if (statusDiv) {
-
-            statusDiv.style.color =
-                '#00f2fe';
-
-            statusDiv.textContent =
-                '1/5 Fetching GitHub repository information...';
-        }
+                return;
+            }
 
 
-        const repoRes =
-            await fetch(
-                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`,
-                {
-                    method: 'GET',
-                    headers
+            const repoParts =
+                repo.split("/");
+
+
+            if (
+                repoParts.length !== 2 ||
+                !repoParts[0] ||
+                !repoParts[1]
+            ) {
+
+                alert(
+                    "Invalid GitHub repository format.\n\n" +
+                    "Use:\nOwner/Repository"
+                );
+
+                return;
+            }
+
+
+            const owner =
+                repoParts[0].trim();
+
+            const repoName =
+                repoParts[1].trim();
+
+
+            const newBranchName =
+                `codemorph-translate-${Date.now()}`;
+
+
+            const headers = {
+
+                "Authorization":
+                    `Bearer ${token}`,
+
+                "Accept":
+                    "application/vnd.github+json",
+
+                "Content-Type":
+                    "application/json",
+
+                "X-GitHub-Api-Version":
+                    "2022-11-28"
+            };
+
+
+            function encodeBase64(text) {
+
+                const bytes =
+                    new TextEncoder().encode(text);
+
+                let binary = "";
+
+                const chunkSize =
+                    0x8000;
+
+
+                for (
+                    let i = 0;
+                    i < bytes.length;
+                    i += chunkSize
+                ) {
+
+                    const chunk =
+                        bytes.subarray(
+                            i,
+                            i + chunkSize
+                        );
+
+                    binary +=
+                        String.fromCharCode(...chunk);
                 }
-            );
 
 
-        const repoData =
-            await repoRes.json();
+                return btoa(binary);
+            }
 
 
-        if (!repoRes.ok) {
+            try {
 
-            throw new Error(
-                repoData.message ||
-                `GitHub repository error (${repoRes.status})`
-            );
-        }
+                /* =========================================
+                   STEP 1 - REPOSITORY
+                ========================================== */
 
+                if (statusDiv) {
 
-        const defaultBranch =
-            repoData.default_branch || 'main';
+                    statusDiv.className =
+                        "github-status processing";
 
-
-        // ==========================================
-        // STEP 2
-        // Get default branch SHA
-        // ==========================================
-
-        if (statusDiv) {
-
-            statusDiv.textContent =
-                '2/5 Fetching default branch information...';
-        }
-
-
-        const refRes =
-            await fetch(
-                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/ref/heads/${encodeURIComponent(defaultBranch)}`,
-                {
-                    method: 'GET',
-                    headers
+                    statusDiv.textContent =
+                        "1/5 Fetching GitHub repository information...";
                 }
-            );
 
 
-        const refData =
-            await refRes.json();
+                const repoRes =
+                    await fetch(
+                        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}`,
+                        {
+                            method: "GET",
+                            headers
+                        }
+                    );
 
 
-        if (!refRes.ok) {
-
-            throw new Error(
-                refData.message ||
-                `Unable to fetch branch (${refRes.status})`
-            );
-        }
+                const repoData =
+                    await repoRes.json();
 
 
-        const baseSha =
-            refData.object?.sha;
+                if (!repoRes.ok) {
 
-
-        if (!baseSha) {
-
-            throw new Error(
-                'Could not find the default branch SHA.'
-            );
-        }
-
-
-        // ==========================================
-        // STEP 3
-        // Create new branch
-        // ==========================================
-
-        if (statusDiv) {
-
-            statusDiv.textContent =
-                '3/5 Creating new CodeMorph AI branch...';
-        }
-
-
-        const branchRes =
-            await fetch(
-                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/refs`,
-                {
-                    method: 'POST',
-                    headers,
-
-                    body: JSON.stringify({
-
-                        ref:
-                            `refs/heads/${newBranchName}`,
-
-                        sha:
-                            baseSha
-                    })
+                    throw new Error(
+                        repoData.message ||
+                        `GitHub repository error (${repoRes.status})`
+                    );
                 }
-            );
 
 
-        const branchData =
-            await branchRes.json();
+                const defaultBranch =
+                    repoData.default_branch || "main";
 
 
-        if (!branchRes.ok) {
+                /* =========================================
+                   STEP 2 - BRANCH SHA
+                ========================================== */
 
-            throw new Error(
-                branchData.message ||
-                `Unable to create branch (${branchRes.status})`
-            );
-        }
+                if (statusDiv) {
 
-
-        // ==========================================
-        // STEP 4
-        // Commit translated code
-        // ==========================================
-
-        if (statusDiv) {
-
-            statusDiv.textContent =
-                '4/5 Committing translated code...';
-        }
-
-
-        const encodedContent =
-            encodeBase64(content);
-
-
-        const encodedPath =
-            filePath
-                .split('/')
-                .map(part =>
-                    encodeURIComponent(part)
-                )
-                .join('/');
-
-
-        const fileUrl =
-            `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodedPath}`;
-
-
-        // ------------------------------------------
-        // Check whether file already exists
-        // ------------------------------------------
-
-        const existingFileRes =
-            await fetch(
-                `${fileUrl}?ref=${encodeURIComponent(newBranchName)}`,
-                {
-                    method: 'GET',
-                    headers
+                    statusDiv.textContent =
+                        "2/5 Fetching default branch information...";
                 }
-            );
 
 
-        let existingFileSha = null;
+                const refRes =
+                    await fetch(
+                        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/ref/heads/${encodeURIComponent(defaultBranch)}`,
+                        {
+                            method: "GET",
+                            headers
+                        }
+                    );
 
 
-        if (existingFileRes.ok) {
-
-            const existingFileData =
-                await existingFileRes.json();
-
-            existingFileSha =
-                existingFileData.sha || null;
-        }
+                const refData =
+                    await refRes.json();
 
 
-        const commitBody = {
+                if (!refRes.ok) {
 
-            message:
-                'feat: Add CodeMorph AI translated code',
-
-            content:
-                encodedContent,
-
-            branch:
-                newBranchName
-        };
+                    throw new Error(
+                        refData.message ||
+                        `Unable to fetch branch (${refRes.status})`
+                    );
+                }
 
 
-        // GitHub requires SHA when updating
-        // an existing file
-
-        if (existingFileSha) {
-
-            commitBody.sha =
-                existingFileSha;
-        }
+                const baseSha =
+                    refData.object?.sha;
 
 
-        const commitRes =
-            await fetch(
-                fileUrl,
-                {
-                    method: 'PUT',
+                if (!baseSha) {
 
-                    headers,
+                    throw new Error(
+                        "Could not find the default branch SHA."
+                    );
+                }
 
-                    body:
-                        JSON.stringify(
-                            commitBody
+
+                /* =========================================
+                   STEP 3 - CREATE BRANCH
+                ========================================== */
+
+                if (statusDiv) {
+
+                    statusDiv.textContent =
+                        "3/5 Creating new CodeMorph AI branch...";
+                }
+
+
+                const branchRes =
+                    await fetch(
+                        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/git/refs`,
+                        {
+                            method: "POST",
+                            headers,
+
+                            body: JSON.stringify({
+
+                                ref:
+                                    `refs/heads/${newBranchName}`,
+
+                                sha:
+                                    baseSha
+                            })
+                        }
+                    );
+
+
+                const branchData =
+                    await branchRes.json();
+
+
+                if (!branchRes.ok) {
+
+                    throw new Error(
+                        branchData.message ||
+                        `Unable to create branch (${branchRes.status})`
+                    );
+                }
+
+
+                /* =========================================
+                   STEP 4 - COMMIT CODE
+                ========================================== */
+
+                if (statusDiv) {
+
+                    statusDiv.textContent =
+                        "4/5 Committing translated code...";
+                }
+
+
+                const encodedContent =
+                    encodeBase64(content);
+
+
+                const encodedPath =
+                    filePath
+                        .split("/")
+                        .map(part =>
+                            encodeURIComponent(part)
                         )
+                        .join("/");
+
+
+                const fileUrl =
+                    `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/${encodedPath}`;
+
+
+                const existingFileRes =
+                    await fetch(
+                        `${fileUrl}?ref=${encodeURIComponent(newBranchName)}`,
+                        {
+                            method: "GET",
+                            headers
+                        }
+                    );
+
+
+                let existingFileSha =
+                    null;
+
+
+                if (existingFileRes.ok) {
+
+                    const existingFileData =
+                        await existingFileRes.json();
+
+                    existingFileSha =
+                        existingFileData.sha || null;
                 }
-            );
 
 
-        const commitData =
-            await commitRes.json();
+                const commitBody = {
+
+                    message:
+                        "feat: Add CodeMorph AI translated code",
+
+                    content:
+                        encodedContent,
+
+                    branch:
+                        newBranchName
+                };
 
 
-        if (!commitRes.ok) {
+                if (existingFileSha) {
 
-            throw new Error(
-                commitData.message ||
-                `Unable to commit file (${commitRes.status})`
-            );
-        }
-
-
-        // ==========================================
-        // STEP 5
-        // Create Pull Request
-        // ==========================================
-
-        if (statusDiv) {
-
-            statusDiv.textContent =
-                '5/5 Opening Pull Request...';
-        }
-
-
-        const prRes =
-            await fetch(
-                `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/pulls`,
-                {
-                    method: 'POST',
-
-                    headers,
-
-                    body: JSON.stringify({
-
-                        title:
-                            '🤖 CodeMorph AI: Converted Code Integration',
-
-                        head:
-                            newBranchName,
-
-                        base:
-                            defaultBranch,
-
-                        body:
-                            'This PR contains automatically translated code generated by **CodeMorph AI**.'
-                    })
+                    commitBody.sha =
+                        existingFileSha;
                 }
-            );
 
 
-        const prData =
-            await prRes.json();
+                const commitRes =
+                    await fetch(
+                        fileUrl,
+                        {
+                            method: "PUT",
+
+                            headers,
+
+                            body:
+                                JSON.stringify(
+                                    commitBody
+                                )
+                        }
+                    );
 
 
-        if (!prRes.ok) {
-
-            throw new Error(
-                prData.message ||
-                `Unable to create Pull Request (${prRes.status})`
-            );
-        }
+                const commitData =
+                    await commitRes.json();
 
 
-        // ==========================================
-        // SUCCESS
-        // ==========================================
+                if (!commitRes.ok) {
 
-        if (statusDiv) {
+                    throw new Error(
+                        commitData.message ||
+                        `Unable to commit file (${commitRes.status})`
+                    );
+                }
 
-            statusDiv.style.color =
-                '#00ff66';
 
-            statusDiv.innerHTML = `
-                ✅ Pull Request Created Successfully!<br>
+                /* =========================================
+                   STEP 5 - CREATE PR
+                ========================================== */
 
-                <a
-                    href="${prData.html_url}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style="color:#00f2fe;"
-                >
-                    View PR #${prData.number}
-                </a>
-            `;
+                if (statusDiv) {
+
+                    statusDiv.textContent =
+                        "5/5 Opening Pull Request...";
+                }
+
+
+                const prRes =
+                    await fetch(
+                        `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/pulls`,
+                        {
+                            method: "POST",
+
+                            headers,
+
+                            body: JSON.stringify({
+
+                                title:
+                                    "🤖 CodeMorph AI: Converted Code Integration",
+
+                                head:
+                                    newBranchName,
+
+                                base:
+                                    defaultBranch,
+
+                                body:
+                                    "This PR contains automatically translated code generated by CodeMorph AI."
+                            })
+                        }
+                    );
+
+
+                const prData =
+                    await prRes.json();
+
+
+                if (!prRes.ok) {
+
+                    throw new Error(
+                        prData.message ||
+                        `Unable to create Pull Request (${prRes.status})`
+                    );
+                }
+
+
+                /* =========================================
+                   SUCCESS
+                ========================================== */
+
+                if (statusDiv) {
+
+                    statusDiv.className =
+                        "github-status success";
+
+                    statusDiv.innerHTML = `
+
+                        ✅ Pull Request Created Successfully!
+
+                        <br>
+
+                        <a
+                            href="${prData.html_url}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            View PR #${prData.number}
+                        </a>
+
+                    `;
+                }
+
+
+                console.log(
+                    "✅ GitHub Pull Request created:",
+                    prData.html_url
+                );
+
+
+            } catch (err) {
+
+                console.error(
+                    "❌ GitHub Export Error:",
+                    err
+                );
+
+
+                if (statusDiv) {
+
+                    statusDiv.className =
+                        "github-status error";
+
+                    statusDiv.textContent =
+                        "❌ GitHub Export Failed: " +
+                        err.message;
+                }
+
+            }
+
         }
 
 
         console.log(
-            '✅ GitHub Pull Request created:',
-            prData.html_url
+            "🚀 CodeMorph AI GitHub Export Loaded Successfully"
         );
 
+    </script>
 
-    } catch (err) {
-
-        console.error(
-            '❌ GitHub Export Error:',
-            err
-        );
-
-
-        if (statusDiv) {
-
-            statusDiv.style.color =
-                '#ff4d4d';
-
-            statusDiv.textContent =
-                '❌ GitHub Export Failed: ' +
-                err.message;
-
-        } else {
-
-            alert(
-                '❌ GitHub Export Failed:\n' +
-                err.message
-            );
-        }
-    }
-}
-
-
-/* ==========================================
-   CODEMORPH SCRIPT LOADED
-========================================== */
-
-console.log(
-    '🚀 CodeMorph AI GitHub Export Loaded Successfully'
-);
-
-</script>
 </body>
 
 </html>
+```
