@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://codemorph-ai.com/sitemap.xml
+Sitemap: https://ai-code-translator-4yje.onrender.com/sitemap.xml
