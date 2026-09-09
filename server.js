@@ -188,6 +188,11 @@ async function analyzeCodeAI(sourceCode, language) {
 /* ==========================================
    ROUTES
 ========================================== */
+/* ==========================================
+   ROUTES
+========================================== */
+
+// Home route
 app.get("/", (req, res) => {
     res.json({
         success: true,
@@ -195,6 +200,7 @@ app.get("/", (req, res) => {
     });
 });
 
+// Health check
 app.get("/health", (req, res) => {
     res.status(200).json({
         success: true,
